@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  border: 1px solid;
+  padding: 10px;
+  border-radius: 15px;
+  margin: 15px 0;
+  align-items: center;
+  flex-flow: wrap;
+
+  > * {
+    margin: 0 10px;
+  }
+
+  > .error {
+    margin-top: 5px;
+    color: #ad2a2a;
+    width: 100%;
+  }
+}

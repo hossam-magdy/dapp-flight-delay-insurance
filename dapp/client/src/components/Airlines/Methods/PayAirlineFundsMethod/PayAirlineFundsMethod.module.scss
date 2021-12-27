@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+  border: 1px solid;
+  padding: 10px;
+  border-radius: 15px;
+  margin: 15px 0;
+  align-items: center;
+  flex-flow: wrap;
+
+  > * {
+    margin: 0 10px;
+  }
+
+  > .result {
+    margin-top: 5px;
+    color: #213292;
+    width: 100%;
+  }
+
+  > .error {
+    margin-top: 5px;
+    color: #ad2a2a;
+    width: 100%;
+  }
+
+  & input[type="number"] {
+    width: 65px;
+  }
+}

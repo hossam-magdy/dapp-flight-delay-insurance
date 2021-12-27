@@ -1,0 +1,1 @@
+export { IsAirlineMethod } from "./IsAirlineMethod";

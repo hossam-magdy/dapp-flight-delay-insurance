@@ -1,0 +1,21 @@
+{
+  "name": "dapp-server",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "PORT=3000 ts-node-dev ./src/index.ts",
+    "clean": "rm -rf ./build",
+    "build": "tsc",
+    "serve": "node ./build/index.js",
+    "link-compiled-contracts": "ln -sf ../../../build ./src/compiled-contracts"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "ts-node-dev": "^1.1.8"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2"
+  }
+}
