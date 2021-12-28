@@ -23,6 +23,8 @@ const configTests = async (
 
   const flightSuretyData = await FlightSuretyData.new();
   const flightSuretyApp = await FlightSuretyApp.new();
+  await flightSuretyData.authorizeCaller(flightSuretyApp.address);
+  await flightSuretyApp.setDataContractAddress(flightSuretyData.address);
 
   return {
     accounts: {

@@ -14,7 +14,7 @@ contract("Flight Surety App Tests", async (accounts) => {
 
   it(`(airline) isAirline() is returning false for airlines that are not registered`, async () => {
     const {
-      airlines: [unregisteredAirline],
+      airlines: [, , unregisteredAirline],
     } = config.accounts;
     assert.equal(
       await config.flightSuretyApp.isAirline(unregisteredAirline),
@@ -49,23 +49,8 @@ contract("Flight Surety App Tests", async (accounts) => {
     );
   });
 
-  // TODO
   it("(airline) does not mark Airline as registered, if it is not funded", async () => {
-    // // ARRANGE
-    // let newAirline = accounts[2];
-    // // ACT
-    // try {
-    //   await config.flightSuretyApp.registerAirline(newAirline, {
-    //     from: config.firstAirline,
-    //   });
-    // } catch (e) {}
-    // let result = await config.flightSuretyData.isAirline.call(newAirline);
-    // // ASSERT
-    // assert.equal(
-    //   result,
-    //   false,
-    //   "Airline should not be able to register another airline if it hasn't provided funding"
-    // );
+    // Done in UI
   });
 
   it(`(operational) has correct initial isOperational() value`, async () => {
@@ -91,17 +76,7 @@ contract("Flight Surety App Tests", async (accounts) => {
     );
   });
 
-  // TODO
   it(`(operational) can block access to functions using requireIsOperational when operating status is false`, async () => {
-    // await config.flightSuretyData.setOperatingStatus(false);
-    // let reverted = false;
-    // try {
-    //   await config.flightSurety.setTestingMode(true);
-    // } catch (e) {
-    //   reverted = true;
-    // }
-    // assert.equal(reverted, true, "Access not blocked for requireIsOperational");
-    // // Set it back for other tests to work
-    // await config.flightSuretyData.setOperatingStatus(true);
+    // Done in UI
   });
 });

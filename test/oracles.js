@@ -2,7 +2,7 @@ const { configTests } = require("../testsConfig.js");
 
 /** @type import("../testsConfig.js").config */
 let config;
-const TEST_ORACLES_COUNT = 5; // TODO increase to 20
+const TEST_ORACLES_COUNT = 10;
 // Watch contract events
 const STATUS_CODE_UNKNOWN = 0;
 const STATUS_CODE_ON_TIME = 10;
@@ -40,7 +40,7 @@ contract("Oracles", async (accounts) => {
     await registerOracles();
   });
 
-  it.only("can request flight status", async () => {
+  it("can request flight status", async () => {
     // ARRANGE
     await registerOracles();
     const flight = "ND1309"; // Course number

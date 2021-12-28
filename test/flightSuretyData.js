@@ -10,13 +10,16 @@ contract("Flight Surety Data", async (accounts) => {
   });
 
   it(`(authorizedCaller) blocks unauthorized callers`, async () => {
-    const sampleMethod = config.flightSuretyData.pay;
+    const methodArgs = [config.accounts.airlines[1]]; // any Address
+    const sampleMethod = config.flightSuretyData.withdrawCredit;
     await config.flightSuretyData.authorizeCaller(
       config.flightSuretyApp.address
     );
-    await sampleMethod.call({ from: config.flightSuretyApp.address });
+    await sampleMethod.call(...methodArgs, {
+      from: config.flightSuretyApp.address,
+    });
     await truffleAssert.reverts(
-      sampleMethod.call({ from: config.accounts.airlines[0] }),
+      sampleMethod.call(...methodArgs, { from: config.accounts.airlines[0] }),
       "Caller is not authorized"
     );
   });
