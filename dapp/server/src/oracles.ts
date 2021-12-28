@@ -28,8 +28,8 @@ const startOracles = async () => {
   // STEP: spin-up/register the oracles and maybe persist the state (index)
   //#region Register Oracles (send registration request to smart cpntract, get an index/ID)
   const accounts = await getAccounts();
-  if (!accounts || !accounts.length) {
-    console.error("Can not fetch accounts");
+  if (!accounts || accounts.length < noOfOracles + firstAccountIndex) {
+    console.error("Can not detect enough accounts");
     process.exit(1);
   }
   for (let i = firstAccountIndex; i < noOfOracles + firstAccountIndex; i++) {

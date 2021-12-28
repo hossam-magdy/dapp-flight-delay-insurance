@@ -12,4 +12,8 @@ abstract contract Owner {
         require(msg.sender == _contractOwner, "Caller is not contract owner");
         _;
     }
+
+    function owner() internal view returns (address) {
+        return _contractOwner;
+    }
 }
