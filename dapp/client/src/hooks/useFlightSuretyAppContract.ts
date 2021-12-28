@@ -9,7 +9,7 @@ export const useFlightSuretyAppContract = () => {
     web3,
     accounts,
     defaultAccount,
-    isInitialized: isWeb3Initialized,
+    isConnected: isWeb3Connected,
   } = useWeb3();
 
   const [contract] = useState(
@@ -170,7 +170,7 @@ export const useFlightSuretyAppContract = () => {
   );
 
   useEffect(() => {
-    if (!isWeb3Initialized) return;
+    if (!isWeb3Connected) return;
 
     preparedMethods
       .isOperational()
@@ -180,7 +180,8 @@ export const useFlightSuretyAppContract = () => {
       { fromBlock: 0 },
       (error: any, event: { returnValues: { airline: Address } }) => {
         logWeb3Event(event, error);
-        setAirlines((airlines) => [...airlines, event.returnValues.airline]);
+        const airline = event?.returnValues?.airline;
+        if (airline) setAirlines((airlines) => [...airlines, airline]);
       }
     );
 
@@ -198,14 +199,16 @@ export const useFlightSuretyAppContract = () => {
         }
       ) => {
         logWeb3Event(event, error);
-        setInsuredPassengers((passengers) =>
-          Array.from(new Set([...passengers, event.returnValues.passenger]))
-        );
+        const passenger = event?.returnValues?.passenger;
+        if (passenger)
+          setInsuredPassengers((passengers) =>
+            Array.from(new Set([...passengers, passenger]))
+          );
       }
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWeb3Initialized]);
+  }, [isWeb3Connected]);
 
   return {
     contract: useMemo(
@@ -216,7 +219,7 @@ export const useFlightSuretyAppContract = () => {
     airlines,
     insuredPassengers,
     defaultAccount,
-    isWeb3Initialized,
     isOperational,
+    isWeb3Connected,
   };
 };

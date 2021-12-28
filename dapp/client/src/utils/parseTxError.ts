@@ -12,6 +12,8 @@ const ERROR_MSG_REVERT =
  * Extracts the revert error message from a TX error object
  */
 export const parseTxError = (e: any) => {
+  const txHash = Object.keys(e?.data || {})?.[0];
+
   const revertErrorData =
     typeof e.data === "object" &&
     (Object.values<string | RevertErrorData>(e.data).find(
@@ -25,6 +27,7 @@ export const parseTxError = (e: any) => {
     : undefined;
 
   return {
+    txHash,
     revertReason,
     revertErrorData,
     error: e,

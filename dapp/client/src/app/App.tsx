@@ -12,7 +12,7 @@ export const App: React.FC = () => {
     accounts,
     airlines,
     insuredPassengers,
-    isWeb3Initialized,
+    isWeb3Connected,
   } = useFlightSuretyAppContract();
 
   return (
@@ -28,8 +28,8 @@ export const App: React.FC = () => {
         / flight status code), multi-party consensus algorithms (for registering
         airlines and for trusting oracle reports), React (client DApp).
       </section>
-      {!isWeb3Initialized ? (
-        <h4>Initializing Web3 …</h4>
+      {!isWeb3Connected ? (
+        <h4>Connecting Web3 …</h4>
       ) : (
         <>
           <p className={styles.status}>Is Operational: {`${isOperational}`}</p>

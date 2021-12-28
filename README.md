@@ -10,10 +10,10 @@ The DApp is utilizing: Smart Contracts (in solidity), Oracles (getting off-chain
 
 ## Install
 
-Clone the repo, then:
+Install [`truffle`](http://trufflesuite.com/docs/truffle/getting-started/installation) cli, Clone this repo, Then:
 
 - `yarn install`
-- `yarn setup` (runs `yarn install` in both `dapp/client/` and `dapp/server/`)
+- `yarn setup` ... (runs `yarn install` in both `dapp/client/` and `dapp/server/`)
 - `truffle compile`
 
 ## Development
@@ -24,7 +24,7 @@ Run local ethereum blockchain:
 
 Start local dev servers:
 
-- `yarn start` (starts `dapp/client/` and `dapp/server/`)
+- `yarn start` ... (starts `dapp/client/` and `dapp/server/`)
 
 To view dapp:
 
@@ -63,9 +63,9 @@ To build dapp for prod:
 
 Rubrics: https://review.udacity.com/#!/rubrics/3609/view
 
-- [ ] Separation of Concerns, Operational Control and “Fail Fast”
-  - [ ] FlightSuretyData.sol for data persistence
-  - [~] FlightSuretyApp.sol for app logic and oracles code
+- [x] Separation of Concerns, Operational Control and “Fail Fast”
+  - [x] FlightSuretyData.sol for data persistence
+  - [x] FlightSuretyApp.sol for app logic and oracles code
   - [x] Passenger can purchase insurance for flight
   - [x] DAPP Triggers contract to request flight status update
   - [x] A server app has been created for simulating oracle behavior. Server can be launched with “npm run server”
@@ -76,10 +76,10 @@ Rubrics: https://review.udacity.com/#!/rubrics/3609/view
   - [x] Only existing airline may register a new airline until there are at least four airlines registered
   - [x] Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
   - [x] Airline can be registered, but does not participate in contract until it submits funding of 10 ether (make sure it is not 10 wei)
-- [ ] Passengers
+- [x] Passengers
   - [x] Passengers can choose from a fixed list of flight numbers and departures that are defined in the Dapp client
   - [x] Your UI implementation should include:
-    - [~] Fields for Airline Address and Airline Name
+    - [x] ~ Fields for Airline Address and Airline Name
     - [x] Amount of funds to send/which airline to send to
     - [x] Ability to purchase flight insurance for no more than 1 ether
   - [x] Passengers may pay up to 1 ether for purchasing flight insurance
