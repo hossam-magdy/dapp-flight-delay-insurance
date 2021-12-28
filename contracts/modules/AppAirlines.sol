@@ -36,7 +36,7 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
     modifier onlyRegisteredAirline() {
         require(
             airlines[msg.sender].isRegistered,
-            "Only resitered airlines are allowed"
+            "Only registered airlines are allowed"
         );
         _;
     }

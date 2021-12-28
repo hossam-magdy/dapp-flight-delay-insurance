@@ -46,12 +46,12 @@ export const Airlines: React.VFC<{
         accounts={accounts}
         contract={contract}
       />
-      <GetAirlineFundsMethod
+      <PayAirlineFundsMethod
         airlines={airlines}
         accounts={accounts}
         contract={contract}
       />
-      <PayAirlineFundsMethod
+      <GetAirlineFundsMethod
         airlines={airlines}
         accounts={accounts}
         contract={contract}

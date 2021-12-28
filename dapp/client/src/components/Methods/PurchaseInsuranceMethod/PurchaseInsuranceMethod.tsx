@@ -4,7 +4,7 @@ import { Address, Contract, Flight } from "types";
 import { shortenAddress, toWei } from "utils";
 import styles from "../CommonMethod.module.scss";
 
-export const PurchaseFlightInsuranceMethod: React.VFC<{
+export const PurchaseInsuranceMethod: React.VFC<{
   flights: Flight[];
   airlines: Address[];
   insuredPassengers: Address[];
@@ -52,7 +52,7 @@ export const PurchaseFlightInsuranceMethod: React.VFC<{
 
   return (
     <div className={styles.container}>
-      <h3>Purchase Flight Insurance:</h3>
+      <h3>Purchase Insurance:</h3>
       <Select
         placeholder="Choose flight …"
         options={flightsOptions}
@@ -87,7 +87,7 @@ export const PurchaseFlightInsuranceMethod: React.VFC<{
         onClick={purchaseFlightInsurance}
         disabled={!selectedFlight || !selectedPassenger || !amount}
       >
-        Purchase Insurance
+        Purchase
       </button>
       {result && <div className={styles.result}>{result}</div>}
       {error && <div className={styles.error}>{error}</div>}

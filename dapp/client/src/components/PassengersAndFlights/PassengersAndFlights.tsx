@@ -1,6 +1,6 @@
 import { Address, Contract, Flight } from "types";
 import {
-  PurchaseFlightInsuranceMethod,
+  PurchaseInsuranceMethod,
   QueryCreditMethod,
   QueryPurchasedInsuranceMethod,
   RequestFlightStatusMethod,
@@ -39,7 +39,7 @@ export const PassengersAndFlights: React.VFC<{
         accounts={accounts}
         contract={contract}
       />
-      <PurchaseFlightInsuranceMethod
+      <PurchaseInsuranceMethod
         flights={flights}
         airlines={airlines}
         insuredPassengers={insuredPassengers}

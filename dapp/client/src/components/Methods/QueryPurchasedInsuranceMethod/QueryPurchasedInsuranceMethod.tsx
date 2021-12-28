@@ -47,7 +47,7 @@ export const QueryPurchasedInsuranceMethod: React.VFC<{
 
   return (
     <div className={styles.container}>
-      <h3>Query Paid Insurance:</h3>
+      <h3>Query Insurance Purchased:</h3>
       <Select
         placeholder="Choose flight …"
         options={flightsOptions}
@@ -68,7 +68,7 @@ export const QueryPurchasedInsuranceMethod: React.VFC<{
         onClick={purchaseFlightInsurance}
         disabled={!selectedFlight || !selectedPassenger}
       >
-        Query Purchased Insurance
+        Check
       </button>
       {result && <div className={styles.result}>{result}</div>}
       {error && <div className={styles.error}>{error}</div>}
