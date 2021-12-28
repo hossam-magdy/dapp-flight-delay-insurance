@@ -25,7 +25,10 @@
     "serve:client": "cd dapp/client && yarn serve",
     "serve:server": "cd dapp/server && yarn serve",
     "link-compiled-contracts:client": "cd dapp/client && yarn link-compiled-contracts",
-    "link-compiled-contracts:server": "cd dapp/server && yarn link-compiled-contracts"
+    "link-compiled-contracts:server": "cd dapp/server && yarn link-compiled-contracts",
+    "dapp": "yarn start:client",
+    "server": "yarn start:server",
+    "dapp:prod": "yarn build:client"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.1",
