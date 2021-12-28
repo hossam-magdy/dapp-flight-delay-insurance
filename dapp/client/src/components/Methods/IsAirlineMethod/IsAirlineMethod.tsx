@@ -24,7 +24,10 @@ export const IsAirlineMethod: React.VFC<{
         setResult(`${output}`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, selectedAirline]);
 
   return (

@@ -21,7 +21,10 @@ export const QueryCreditMethod: React.VFC<{
         setResult(`${amount} ETH`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, selectedPassenger]);
 
   const passengersOptions = accounts.map((a) => ({

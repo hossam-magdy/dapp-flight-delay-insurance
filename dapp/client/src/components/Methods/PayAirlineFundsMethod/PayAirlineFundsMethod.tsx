@@ -31,7 +31,10 @@ export const PayAirlineFundsMethod: React.VFC<{
         );
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, funds, selectedAirline]);
 
   return (

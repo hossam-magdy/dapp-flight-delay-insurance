@@ -32,6 +32,7 @@ export const PurchaseInsuranceMethod: React.VFC<{
   const purchaseFlightInsurance = useCallback(() => {
     if (!selectedFlight) return;
     const { airline, flightNumber } = selectedFlight;
+    console.log("toWei(amount)", toWei(amount));
     contract.preparedMethods
       .purchaseInsurance({
         airline,
@@ -47,7 +48,10 @@ export const PurchaseInsuranceMethod: React.VFC<{
         );
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [selectedFlight, contract.preparedMethods, selectedPassenger, amount]);
 
   return (

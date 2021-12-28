@@ -127,7 +127,6 @@ const startOracles = async () => {
         } catch (e: any) {
           console.error("[Failed to submitOracleResponse]", e?.message);
         }
-        // console.log({ hash });
       }
     }
   );

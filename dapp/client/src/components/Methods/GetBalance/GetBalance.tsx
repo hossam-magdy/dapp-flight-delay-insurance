@@ -20,7 +20,10 @@ export const GetBalance: React.VFC<{
         setResult(`${amount} ETH`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, selectedAccount]);
 
   return (

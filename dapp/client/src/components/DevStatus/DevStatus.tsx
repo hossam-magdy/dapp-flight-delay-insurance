@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { config } from "config";
+import React, { useEffect, useMemo, useState } from "react";
 import { Address, Contract } from "types";
 import { logWeb3Event, shortenAddress } from "utils";
 import { GetBalance } from "../Methods";
@@ -25,31 +26,50 @@ export const DevStatus: React.VFC<{
     });
   }, [contract.events]);
 
-  const accountsOptions = accounts.map((a) => ({
-    value: a,
-    label: airlines.includes(a)
-      ? `${shortenAddress(a)} (is airline)`
-      : insuredPassengers.includes(a)
-      ? `${shortenAddress(a)} (paid insurance before)`
-      : "",
-  }));
+  const accountsOptions = useMemo(
+    () => [
+      {
+        value: config.appAddress,
+        label: `${shortenAddress(config.appAddress)} (App Contract)`,
+      },
+      {
+        value: config.dataAddress,
+        label: `${shortenAddress(config.dataAddress)} (Data Contract)`,
+      },
+      ...accounts.map((a) => ({
+        value: a,
+        label: airlines.includes(a)
+          ? `${shortenAddress(a)} (is airline)`
+          : insuredPassengers.includes(a)
+          ? `${shortenAddress(a)} (paid insurance before)`
+          : "",
+      })),
+    ],
+    [accounts, airlines, insuredPassengers]
+  );
+
+  const accountsListText = useMemo(
+    () =>
+      [
+        `- ${config.appAddress} (App Contract)`,
+        `- ${config.dataAddress} (Data Contract)`,
+        ...accounts.map((a) =>
+          airlines.includes(a)
+            ? `- ${a} (is airline)`
+            : insuredPassengers.includes(a)
+            ? `- ${a} (paid insurance before)`
+            : `- ${a}`
+        ),
+      ].join("\n"),
+    [accounts, airlines, insuredPassengers]
+  );
 
   return (
     <section className={styles.container}>
       <h2>Dev Status (listing all accounts, and listening to all events)</h2>
       <GetBalance accountsOptions={accountsOptions} contract={contract} />
       <p>Accounts:</p>
-      <pre>
-        {accounts
-          .map((a) =>
-            airlines.includes(a)
-              ? `- ${a} (is airline)`
-              : insuredPassengers.includes(a)
-              ? `- ${a} (paid insurance before)`
-              : `- ${a}`
-          )
-          .join("\n")}
-      </pre>{" "}
+      <pre>{accountsListText}</pre>
       <p>Events:</p>
       <pre>
         {events

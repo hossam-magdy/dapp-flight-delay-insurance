@@ -84,21 +84,15 @@ export const useFlightSuretyAppContract = () => {
               // "0x80f6999a9192fb9aaa249becaa50c8a6972f4ab3e649616f522cb3877ed495fd"
               timestamp: args.timestamp,
             };
-            // console.log({ filter });
             contract.once(
               "OracleRequest",
               { filter },
               (_err: any, event: any) => {
-                // console.log("[event:OracleRequest:after-fetchFlightStatus]", event);
                 filter.key = event?.returnValues?.key;
                 contract.once(
                   "FlightStatusInfo",
                   { filter },
                   (_err: any, event: any) => {
-                    // console.log(
-                    //   "[event:FlightStatusInfo:after-fetchFlightStatus]",
-                    //   event
-                    // );
                     const statusCode = event?.returnValues?.status;
                     cbWhenStatusReceived?.(statusCode);
                     resolve(statusCode);

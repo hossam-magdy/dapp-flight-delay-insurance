@@ -35,7 +35,10 @@ export const QueryPurchasedInsuranceMethod: React.VFC<{
         setResult(`${amount} ETH`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [selectedFlight, contract.preparedMethods, selectedPassenger]);
 
   const passengersOptions = accounts

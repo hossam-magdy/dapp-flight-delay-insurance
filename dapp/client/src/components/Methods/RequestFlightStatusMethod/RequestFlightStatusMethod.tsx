@@ -6,7 +6,6 @@ import styles from "../CommonMethod.module.scss";
 
 export const RequestFlightStatusMethod: React.VFC<{
   flights: Flight[];
-  // passengers: Address[];
   accounts: Address[];
   contract: Contract;
 }> = ({ flights, accounts, contract }) => {
@@ -31,7 +30,10 @@ export const RequestFlightStatusMethod: React.VFC<{
           console.log("[DONE:fetchFlightStatus]", { statusCode });
         }
       )
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   };
 
   return (
@@ -63,8 +65,8 @@ export const RequestFlightStatusMethod: React.VFC<{
       {error && <div className={styles.error}>{error}</div>}
       <div className={styles.info}>
         This sends a fetchFlightStatus() transaction, which emits OracleRequest,
-        then the each of the targeted/indexed oracles report the
-        FlightStatusCode back to the smart contract by emitting OracleReport
+        then each of the targeted/indexed oracles report the FlightStatusCode
+        back to the smart contract by emitting OracleReport
       </div>
     </div>
   );

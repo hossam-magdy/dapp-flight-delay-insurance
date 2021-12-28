@@ -26,7 +26,10 @@ export const GetAirlineFundsMethod: React.VFC<{
         setResult(`MIN_AIRLINE_FUNDING is: ${amount} ETH`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods]);
 
   const callAirlineFunds = useCallback(() => {
@@ -39,7 +42,10 @@ export const GetAirlineFundsMethod: React.VFC<{
         );
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, selectedAirline]);
 
   return (

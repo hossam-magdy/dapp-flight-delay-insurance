@@ -19,7 +19,10 @@ export const WithdrawCreditMethod: React.VFC<{
         setResult(`Credit withdrawn successfully`);
         setError(undefined);
       })
-      .catch(setError);
+      .catch((e) => {
+        setError(e);
+        setResult(undefined);
+      });
   }, [contract.preparedMethods, selectedPassenger]);
 
   const passengersOptions = accounts.map((a) => ({
