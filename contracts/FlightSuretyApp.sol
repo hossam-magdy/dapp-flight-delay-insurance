@@ -23,20 +23,19 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+    // 0, 10, 20, 30, 40, 50; as per constants STATUS_CODE_*
+    type StatusCode is uint8;
 
     struct Flight {
+        string flightNumber;
+        address airline;
         bool isRegistered;
         StatusCode statusCode;
         uint256 updatedTimestamp;
-        address airline;
     }
-    mapping(StatusRequestKey => Flight) private flights;
-
-    // StatusRequestKey = hash(index, airline, flightNumber, timestamp)
-    type StatusRequestKey is bytes32;
-
-    // 0, 10, 20, 30, 40; as per constants STATUS_CODE_*
-    type StatusCode is uint8;
+    // hash(flightNumber, airline)
+    type FlightKey is bytes32;
+    mapping(FlightKey => Flight) private _flights;
 
     constructor() {}
 
@@ -55,8 +54,30 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
         string memory flightNumber,
         uint256 timestamp,
         StatusCode statusCode
-    ) internal requireIsOperational {
-        // TODO?
+    ) internal {
+        FlightKey flightKey = _getFlightKey(flightNumber, airline);
+
+        _flights[flightKey].statusCode = statusCode;
+        _flights[flightKey].updatedTimestamp = timestamp;
+
+        // Credit passengers
+        if (
+            StatusCode.unwrap(_flights[flightKey].statusCode) ==
+            STATUS_CODE_LATE_AIRLINE
+        ) {
+            for (
+                uint256 i = 0;
+                i < _passengersWithInsurance[flightKey].length;
+                i++
+            ) {
+                address passenger = _passengersWithInsurance[flightKey][i];
+                uint256 insurancePaid = _insurances[flightKey][passenger];
+                delete _insurances[flightKey][passenger];
+                uint256 creditToAdd = (insurancePaid * 3) / 2;
+                _credits[passenger] += creditToAdd;
+                emit CreditAdded(passenger, creditToAdd, flightNumber, airline);
+            }
+        }
     }
 
     // Generate a request for oracles to fetch flight information
@@ -91,8 +112,85 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     /********************************************************************************************/
     /*                                   INSURANCE AND PAYMENTS                                 */
     /********************************************************************************************/
+    uint256 public constant MAX_FLIGHT_INSURANCE_AMOUNT_PER_PASSENGER = 1 ether;
+    uint256 public constant MIN_FLIGHT_INSURANCE_AMOUNT_PER_PASSENGER = 100 wei;
 
-    function purchaseFlightInsurance() external payable {}
+    mapping(FlightKey => address[]) private _passengersWithInsurance; // paid by passengers
+    mapping(FlightKey => mapping(address => uint256)) private _insurances; // paid by passengers
+    mapping(address => uint256) private _credits; // credit of passengers
+
+    event InsurancePurchase(
+        address indexed passenger,
+        uint256 amount,
+        string flightNumber,
+        address airline
+    );
+
+    event CreditAdded(
+        address passenger,
+        uint256 credit,
+        string flightNumber,
+        address airline
+    );
+
+    event CreditWithdrawal(address passenger, uint256 credit);
+
+    modifier requirePaymentWithinAllowedInsuranceRange() {
+        require(
+            msg.value >= MIN_FLIGHT_INSURANCE_AMOUNT_PER_PASSENGER,
+            "Insurance amount must be more than 100 wei"
+        );
+        require(
+            msg.value <= MAX_FLIGHT_INSURANCE_AMOUNT_PER_PASSENGER,
+            "Maximum insurance is 1 ether"
+        );
+        _;
+    }
+
+    function purchaseInsurance(string memory flightNumber, address airline)
+        external
+        payable
+        requirePaymentWithinAllowedInsuranceRange
+    {
+        FlightKey flightKey = _getFlightKey(flightNumber, airline);
+        // require(_flights[flightKey].isRegistered, "Flight is not registered");
+        require(
+            _insurances[flightKey][msg.sender] == 0,
+            "Already purchased insurance of this flight"
+        );
+        _insurances[flightKey][msg.sender] += msg.value;
+        _passengersWithInsurance[flightKey].push(msg.sender);
+        emit InsurancePurchase(msg.sender, msg.value, flightNumber, airline);
+    }
+
+    function queryCredit() external view returns (uint256) {
+        return _credits[msg.sender];
+    }
+
+    function queryPurchasedInsurance(
+        string memory flightNumber,
+        address airline
+    ) external view returns (uint256) {
+        FlightKey flightKey = _getFlightKey(flightNumber, airline);
+        return _insurances[flightKey][msg.sender];
+    }
+
+    function withdrawCredit() external {
+        uint256 credit = _credits[msg.sender];
+        require(credit > 0, "No credit available");
+        delete _credits[msg.sender];
+        payable(msg.sender).transfer(credit);
+        emit CreditWithdrawal(msg.sender, credit);
+    }
+
+    function _getFlightKey(string memory flightNumber, address airline)
+        internal
+        pure
+        returns (FlightKey)
+    {
+        return
+            FlightKey.wrap(keccak256(abi.encodePacked(flightNumber, airline)));
+    }
 
     /********************************************************************************************/
     /*                                      ORACLE MANAGEMENT                                   */
@@ -123,6 +221,9 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
         // the response that majority of the oracles
     }
 
+    // StatusRequestKey = hash(randomIndexFromRequester, airline, flightNumber, timestamp)
+    type StatusRequestKey is bytes32;
+
     // Track all oracle responses
     mapping(StatusRequestKey => mapping(StatusCode => address[]))
         private flightStatusOracleResponses;
@@ -134,7 +235,7 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
         string flightNumber,
         uint256 indexed timestamp,
         uint8 status,
-        bytes32 indexed key
+        bytes32 indexed requestKey
     );
 
     event OracleReport(
@@ -142,7 +243,7 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
         string flightNumber,
         uint256 indexed timestamp,
         uint8 status,
-        bytes32 indexed key
+        bytes32 indexed requestKey
     );
 
     // Event fired when flight status request is submitted
@@ -153,7 +254,7 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
         address indexed airline,
         string flightNumber,
         uint256 indexed timestamp,
-        bytes32 indexed key
+        bytes32 indexed requestKey
     );
 
     event OracleRegistered(address oracleAddress);
@@ -197,20 +298,20 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
             "Index does not match oracle request"
         );
 
-        StatusRequestKey key = _getStatusRequestKey(
+        StatusRequestKey requestKey = _getStatusRequestKey(
             index,
             airline,
             flightNumber,
             timestamp
         );
         require(
-            flightStatusRequests[key].isOpen,
+            flightStatusRequests[requestKey].isOpen,
             "Flight or timestamp do not match oracle request, or Oracle consensus was already fulfilled"
         );
 
         StatusCode statusCode = StatusCode.wrap(statusCodeInt);
 
-        flightStatusOracleResponses[key][statusCode].push(msg.sender);
+        flightStatusOracleResponses[requestKey][statusCode].push(msg.sender);
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
@@ -219,22 +320,23 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
             flightNumber,
             timestamp,
             statusCodeInt,
-            StatusRequestKey.unwrap(key)
+            StatusRequestKey.unwrap(requestKey)
         );
         if (
-            flightStatusOracleResponses[key][statusCode].length >= MIN_RESPONSES
+            flightStatusOracleResponses[requestKey][statusCode].length >=
+            MIN_RESPONSES
         ) {
             emit FlightStatusInfo(
                 airline,
                 flightNumber,
                 timestamp,
                 statusCodeInt,
-                StatusRequestKey.unwrap(key)
+                StatusRequestKey.unwrap(requestKey)
             );
 
-            delete flightStatusRequests[key];
+            delete flightStatusRequests[requestKey];
 
-            // Handle flight status as appropriate
+            // Handle flight status as appropriate (update data, payout insurance to passengers)
             processFlightStatus(airline, flightNumber, timestamp, statusCode);
         }
     }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { FLIGHTS_API_URL } from "../constants";
-import { Flight } from "../types";
+import { FLIGHTS_API_URL } from "config";
+import { Flight } from "types";
 
 export const useFlightsApi = () => {
   const [flights, setFlights] = useState<Flight[]>([]);

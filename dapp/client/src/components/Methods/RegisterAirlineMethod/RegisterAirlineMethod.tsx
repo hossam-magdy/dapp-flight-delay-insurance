@@ -25,21 +25,15 @@ export const RegisterAirlineMethod: React.VFC<{
   }, [contract.preparedMethods, from, newAirline]);
 
   return (
-    <>
-      <div className={styles.container}>
-        <h3>Register new airline:</h3>
-        <Select
-          options={options}
-          value={newAirline}
-          onChange={setNewAirline}
-        />
-        as
-        <Select options={options} value={from} onChange={setFrom} />
-        <button onClick={registerNewAirline} disabled={!newAirline || !from}>
-          Register
-        </button>
-        {error && <div className={styles.error}>{error}</div>}
-      </div>
-    </>
+    <div className={styles.container}>
+      <h3>Register new airline:</h3>
+      <Select options={options} value={newAirline} onChange={setNewAirline} />
+      as
+      <Select options={options} value={from} onChange={setFrom} />
+      <button onClick={registerNewAirline} disabled={!newAirline || !from}>
+        Register
+      </button>
+      {error && <div className={styles.error}>{error}</div>}
+    </div>
   );
 };

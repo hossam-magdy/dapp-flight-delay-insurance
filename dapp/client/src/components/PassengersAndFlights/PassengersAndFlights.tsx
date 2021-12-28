@@ -1,30 +1,24 @@
 import { Address, Contract, Flight } from "types";
 import {
-  GetPassengerCreditMethod,
   PurchaseFlightInsuranceMethod,
+  QueryCreditMethod,
+  QueryPurchasedInsuranceMethod,
   RequestFlightStatusMethod,
-  WithdrawPassengerCreditMethod,
+  WithdrawCreditMethod,
 } from "../Methods";
 import styles from "./PassengersAndFlights.module.scss";
 
 export const PassengersAndFlights: React.VFC<{
   flights: Flight[];
-  passengers: Address[];
+  airlines: Address[];
+  insuredPassengers: Address[];
   accounts: Address[];
   contract: Contract;
-}> = ({ flights = [], passengers, accounts, contract }) => {
+}> = ({ flights = [], airlines, insuredPassengers, accounts, contract }) => {
   return (
     <section className={styles.container}>
       <h2>Passengers and Flights</h2>
       <div>
-        {/* PassengersAndFlights registered:
-        <br />
-        <textarea
-          cols={42}
-          rows={5}
-          readOnly
-          value={flights.map((f) => JSON.stringify(f)).join("\n")}
-        /> */}
         <p className={styles.info}>
           Passengers can choose from a fixed list of flight numbers and
           departures
@@ -42,25 +36,30 @@ export const PassengersAndFlights: React.VFC<{
       </div>
       <RequestFlightStatusMethod
         flights={flights}
-        passengers={passengers}
         accounts={accounts}
         contract={contract}
       />
       <PurchaseFlightInsuranceMethod
         flights={flights}
-        passengers={passengers}
+        airlines={airlines}
+        insuredPassengers={insuredPassengers}
         accounts={accounts}
         contract={contract}
       />
-      <GetPassengerCreditMethod
+      <QueryPurchasedInsuranceMethod
         flights={flights}
-        passengers={passengers}
+        airlines={airlines}
+        insuredPassengers={insuredPassengers}
         accounts={accounts}
         contract={contract}
       />
-      <WithdrawPassengerCreditMethod
-        flights={flights}
-        passengers={passengers}
+      <QueryCreditMethod
+        insuredPassengers={insuredPassengers}
+        accounts={accounts}
+        contract={contract}
+      />
+      <WithdrawCreditMethod
+        insuredPassengers={insuredPassengers}
         accounts={accounts}
         contract={contract}
       />

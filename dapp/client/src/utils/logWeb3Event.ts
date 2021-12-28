@@ -9,4 +9,5 @@ export const logWeb3Event = (event: any, error?: any) => {
   } else {
     console.log(`[event:${event.event}]:`, returnValues);
   }
+  return { event: event.event, returnValues };
 };

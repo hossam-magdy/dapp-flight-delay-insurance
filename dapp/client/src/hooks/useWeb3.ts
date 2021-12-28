@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Web3 from "web3";
-import { config } from "../config";
+import { config } from "config";
 
 export const useWeb3 = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -8,8 +8,7 @@ export const useWeb3 = () => {
   const [accounts, setAccounts] = useState<string[]>([]); // initialize as empty array, and rely on `isInitialized` boolean state
 
   const [web3] = useState(() => {
-    const url = config.url.replace("http", "ws");
-    const provider = new Web3.providers.WebsocketProvider(url);
+    const provider = new Web3.providers.WebsocketProvider(config.url);
     const web3 = new Web3(provider);
     web3.eth.getAccounts((err, acc) => {
       if (err) {

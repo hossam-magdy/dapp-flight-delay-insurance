@@ -1,7 +1,11 @@
-import FlightSuretyApp from './compiled-contracts/contracts/FlightSuretyApp.json';
-import Config from './compiled-contracts/deployedConfig.json';
+import FlightSuretyApp from "./compiled-contracts/contracts/FlightSuretyApp.json";
+import Config from "./compiled-contracts/deployedConfig.json";
 
-// network = localhost
-const { localhost } = Config;
+const config = {
+  ...Config.localhost, // network = localhost
+  url: Config.localhost.url.replace("http", "ws"),
+};
 
-export { localhost as config, FlightSuretyApp };
+const FLIGHTS_API_URL = "http://localhost:3000/api";
+
+export { config, FlightSuretyApp, FLIGHTS_API_URL };

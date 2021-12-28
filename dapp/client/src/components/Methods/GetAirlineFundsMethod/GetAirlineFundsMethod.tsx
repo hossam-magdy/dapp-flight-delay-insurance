@@ -34,29 +34,29 @@ export const GetAirlineFundsMethod: React.VFC<{
       .airlineFunds({ from: selectedAirline })
       .then((result) => {
         const amount = toEther(result);
-        setResult(`${amount} ETH were funded by the airline: ${selectedAirline}`);
+        setResult(
+          `${amount} ETH were funded by the airline: ${selectedAirline}`
+        );
         setError(undefined);
       })
       .catch(setError);
   }, [contract.preparedMethods, selectedAirline]);
 
   return (
-    <>
-      <div className={styles.container}>
-        <button onClick={callMinAirlineFunds}>Get MIN_AIRLINE_FUNDING</button> |{" "}
-        <h3>Get Airline Funds:</h3>
-        as{" "}
-        <Select
-          options={options}
-          value={selectedAirline}
-          onChange={setSelectedAirline}
-        />
-        <button onClick={callAirlineFunds} disabled={!selectedAirline}>
-          Check
-        </button>
-        {result && <div className={styles.result}>{result}</div>}
-        {error && <div className={styles.error}>{error}</div>}
-      </div>
-    </>
+    <div className={styles.container}>
+      <button onClick={callMinAirlineFunds}>Get MIN_AIRLINE_FUNDING</button> |{" "}
+      <h3>Get Airline Funds:</h3>
+      as{" "}
+      <Select
+        options={options}
+        value={selectedAirline}
+        onChange={setSelectedAirline}
+      />
+      <button onClick={callAirlineFunds} disabled={!selectedAirline}>
+        Check
+      </button>
+      {result && <div className={styles.result}>{result}</div>}
+      {error && <div className={styles.error}>{error}</div>}
+    </div>
   );
 };

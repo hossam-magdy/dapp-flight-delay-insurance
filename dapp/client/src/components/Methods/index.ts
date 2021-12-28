@@ -1,8 +1,10 @@
-export * from "./GetAirlineFundsMethod";
-export * from "./GetPassengerCreditMethod";
-export * from "./IsAirlineMethod";
-export * from "./PayAirlineFundsMethod";
-export * from "./PurchaseFlightInsuranceMethod";
-export * from "./RegisterAirlineMethod";
-export * from "./RequestFlightStatusMethod";
-export * from "./WithdrawPassengerCreditMethod";
+export { GetAirlineFundsMethod } from "./GetAirlineFundsMethod";
+export { GetBalance } from "./GetBalance";
+export { IsAirlineMethod } from "./IsAirlineMethod";
+export { PayAirlineFundsMethod } from "./PayAirlineFundsMethod";
+export { PurchaseFlightInsuranceMethod } from "./PurchaseFlightInsuranceMethod";
+export { QueryCreditMethod } from "./QueryCreditMethod";
+export { QueryPurchasedInsuranceMethod } from "./QueryPurchasedInsuranceMethod";
+export { RegisterAirlineMethod } from "./RegisterAirlineMethod";
+export { RequestFlightStatusMethod } from "./RequestFlightStatusMethod";
+export { WithdrawCreditMethod } from "./WithdrawCreditMethod";

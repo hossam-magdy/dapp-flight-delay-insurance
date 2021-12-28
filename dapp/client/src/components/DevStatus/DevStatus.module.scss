@@ -1,0 +1,17 @@
+.container {
+  margin-top: 25px;
+  border-top: 10px solid #ebebeb;
+  padding-top: 10px;
+
+  > h2 {
+    text-align: center;
+    margin: 10px;
+  }
+
+  pre {
+    max-width: 100%;
+    max-height: 400px;
+    overflow: auto;
+    display: inline-block;
+  }
+}

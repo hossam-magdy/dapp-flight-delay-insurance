@@ -20,6 +20,7 @@ export const useFlightSuretyAppContract = () => {
   );
   const [isOperational, setIsOperational] = useState<boolean>();
   const [airlines, setAirlines] = useState<Address[]>([]);
+  const [insuredPassengers, setInsuredPassengers] = useState<Address[]>([]);
 
   const preparedMethods = useMemo(
     () => ({
@@ -42,13 +43,13 @@ export const useFlightSuretyAppContract = () => {
         );
       },
       payAirlineFunds: (args: { from: Address; value: string }) => {
-        console.log("[calling payAirlineFunds()]");
+        console.log("[sending payAirlineFunds()]");
         return promisifyWeb3Call(() =>
           contract.methods.payAirlineFunds().send(args)
         );
       },
       registerAirline: (args: { newAirline: Address; from: Address }) => {
-        console.log("[calling registerAirline(…)]");
+        console.log("[sending registerAirline(…)]");
         return promisifyWeb3Call(() =>
           contract.methods
             .registerAirline(args.newAirline)
@@ -72,7 +73,7 @@ export const useFlightSuretyAppContract = () => {
       ) => {
         return new Promise((resolve, reject) => {
           try {
-            console.log("[calling fetchFlightStatus(…)]");
+            console.log("[sending fetchFlightStatus(…)]");
             const filter: Record<string, string | number> = {
               airline: args.airline,
               // Indexed strings in event values are hashed by keccack256
@@ -121,9 +122,50 @@ export const useFlightSuretyAppContract = () => {
           }
         });
       },
+      purchaseInsurance: (args: {
+        flightNumber: string;
+        airline: Address;
+        from: Address;
+        value: string; // in Wei
+      }) => {
+        console.log("[sending purchaseInsurance(…)]");
+        return promisifyWeb3Call(() =>
+          contract.methods
+            .purchaseInsurance(args.flightNumber, args.airline)
+            .send({ from: args.from, value: args.value })
+        );
+      },
+      queryCredit: (args: { from: Address }) => {
+        console.log("[calling queryCredit()]");
+        return promisifyWeb3Call<string>(() =>
+          contract.methods.queryCredit().call(args)
+        );
+      },
+      queryPurchasedInsurance: (args: {
+        flightNumber: string;
+        airline: Address;
+        from: Address;
+      }) => {
+        console.log("[calling queryPurchasedInsurance()]");
+        return promisifyWeb3Call<string>(() =>
+          contract.methods
+            .queryPurchasedInsurance(args.flightNumber, args.airline)
+            .call({ from: args.from })
+        );
+      },
+      withdrawCredit: (args: { from: Address }) => {
+        console.log("[calling withdrawCredit()]");
+        return promisifyWeb3Call(() =>
+          contract.methods.withdrawCredit().send(args)
+        );
+      },
+      getBalance: (account: Address) => {
+        console.log("[calling web3.getBalance()]");
+        return promisifyWeb3Call<string>(() => web3.eth.getBalance(account));
+      },
       // payAirlineFunds: () => promisifyWeb3Call(() => {}),
     }),
-    [contract]
+    [contract, web3.eth]
   );
 
   useEffect(() => {
@@ -133,27 +175,31 @@ export const useFlightSuretyAppContract = () => {
       .isOperational()
       .then((result) => setIsOperational(!!result));
 
-    // Watch events.FlightStatusInfo
-    contract.events.FlightStatusInfo({}, (error: any, event: any) => {
-      logWeb3Event(event, error);
-    });
-
-    // Watch events.OracleReport
-    contract.events.OracleReport({}, (error: any, event: any) => {
-      logWeb3Event(event, error);
-    });
-
-    // Watch events.OracleRequest
-    contract.events.OracleRequest({}, (error: any, event: any) => {
-      logWeb3Event(event, error);
-    });
-
-    // Watch events.FlightStatusInfo
     contract.events.AirlineRegistered(
       { fromBlock: 0 },
       (error: any, event: { returnValues: { airline: Address } }) => {
         logWeb3Event(event, error);
         setAirlines((airlines) => [...airlines, event.returnValues.airline]);
+      }
+    );
+
+    contract.events.InsurancePurchase(
+      { fromBlock: 0 },
+      (
+        error: any,
+        event: {
+          returnValues: {
+            passenger: Address;
+            amount: string;
+            flightNumber: string;
+            airline: Address;
+          };
+        }
+      ) => {
+        logWeb3Event(event, error);
+        setInsuredPassengers((passengers) =>
+          Array.from(new Set([...passengers, event.returnValues.passenger]))
+        );
       }
     );
 
@@ -167,6 +213,7 @@ export const useFlightSuretyAppContract = () => {
     ),
     accounts,
     airlines,
+    insuredPassengers,
     defaultAccount,
     isWeb3Initialized,
     isOperational,

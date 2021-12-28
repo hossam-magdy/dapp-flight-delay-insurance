@@ -1,1 +1,0 @@
-export { GetPassengerCreditMethod } from "./GetPassengerCreditMethod";

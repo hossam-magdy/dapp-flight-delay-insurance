@@ -16,6 +16,8 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
 
     event AirlineRegistered(address airline);
 
+    event AirlineFund(address airline, uint256 amount);
+
     constructor() {
         // First airline is registered when contract is deployed
         // (considered as the contract creator/owner)
@@ -26,7 +28,7 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
     modifier onlyFullyFundedAirline() {
         require(
             airlines[msg.sender].funds >= MIN_AIRLINE_FUNDING,
-            "Airline did not pay enough funds"
+            "Not enough funds paid"
         );
         _;
     }
@@ -34,7 +36,7 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
     modifier onlyRegisteredAirline() {
         require(
             airlines[msg.sender].isRegistered,
-            "Only existing airlines are allowed"
+            "Only resitered airlines are allowed"
         );
         _;
     }
@@ -43,7 +45,7 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
         return airlines[airline].isRegistered;
     }
 
-    function payAirlineFunds() external payable {
+    function payAirlineFunds() external payable onlyRegisteredAirline {
         _addAirlineFunds(msg.sender, msg.value);
     }
 
@@ -86,5 +88,6 @@ abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
 
     function _addAirlineFunds(address airline, uint256 value) private {
         airlines[airline].funds += value;
+        emit AirlineFund(airline, value);
     }
 }

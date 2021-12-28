@@ -28,20 +28,18 @@ export const IsAirlineMethod: React.VFC<{
   }, [contract.preparedMethods, selectedAirline]);
 
   return (
-    <>
-      <div className={styles.container}>
-        <h3>Check IsAirline registered:</h3>
-        <Select
-          options={options}
-          value={selectedAirline}
-          onChange={setSelectedAirline}
-        />
-        <button onClick={callIsAirline} disabled={!selectedAirline}>
-          Check
-        </button>
-        {result && <div className={styles.result}>{result}</div>}
-        {error && <div className={styles.error}>{error}</div>}
-      </div>
-    </>
+    <div className={styles.container}>
+      <h3>Check IsAirline registered:</h3>
+      <Select
+        options={options}
+        value={selectedAirline}
+        onChange={setSelectedAirline}
+      />
+      <button onClick={callIsAirline} disabled={!selectedAirline}>
+        Check
+      </button>
+      {result && <div className={styles.result}>{result}</div>}
+      {error && <div className={styles.error}>{error}</div>}
+    </div>
   );
 };
