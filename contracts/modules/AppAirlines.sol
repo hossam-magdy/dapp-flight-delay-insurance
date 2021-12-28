@@ -5,14 +5,12 @@ import "./MultiPartyConsensusOnAddressByAddress.sol";
 
 abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
     struct Airline {
-        // address airline;
-        // uint256 votes;
         uint256 funds;
         bool isRegistered;
     }
     mapping(address => Airline) airlines;
     address[] airlinesRegistered;
-    uint256 public constant MIN_AIRLINE_FUNDING = 1 ether;
+    uint256 public constant MIN_AIRLINE_FUNDING = 10 ether;
 
     event AirlineRegistered(address airline);
 

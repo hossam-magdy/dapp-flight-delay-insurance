@@ -200,7 +200,7 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     uint8 private nonce = 0;
 
     // Fee to be paid when registering oracle
-    uint256 public constant REGISTRATION_FEE = 1 gwei; // 1 ether; // https://docs.soliditylang.org/en/v0.8.11/units-and-global-variables.html#ether-units
+    uint256 public constant REGISTRATION_FEE = 1 ether; // 1 gwei; // https://docs.soliditylang.org/en/v0.8.11/units-and-global-variables.html#ether-units
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;

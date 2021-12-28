@@ -7,7 +7,7 @@ const { flightSuretyApp } = contracts;
 const firstAccountIndex = 11;
 const noOfOracles = 25;
 
-const regFee = web3.utils.toWei("0.4", "ether");
+const regFee = web3.utils.toWei("1", "ether");
 
 class Oracle {
   constructor(public address: string, public indexes: number[] = []) {}
