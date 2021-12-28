@@ -1,29 +1,29 @@
 import { useCallback, useState } from "react";
-import Web3 from "web3";
-import { SelectAccount } from "components/SelectAccount";
+import { Select } from "components/Select";
 import { Address, Contract } from "types";
-import styles from "./GetAirlineFundsMethod.module.scss";
+import styles from "../CommonMethod.module.scss";
+import { toEther } from "utils";
 
 export const GetAirlineFundsMethod: React.VFC<{
   airlines: Address[];
   accounts: Address[];
   contract: Contract;
 }> = ({ airlines, accounts, contract }) => {
-  const [selectedAirline, setSelectedAirline] = useState<Address>('');
+  const [selectedAirline, setSelectedAirline] = useState<Address>("");
   const [result, setResult] = useState<String>();
   const [error, setError] = useState<String>();
 
   const options = accounts.map((a) => ({
-    address: a,
+    value: a,
     suffix: airlines.includes(a) ? " (is airline)" : "",
   }));
 
   const callMinAirlineFunds = useCallback(() => {
     contract.preparedMethods
       .MIN_AIRLINE_FUNDING()
-      .then((output) => {
-        const amount = Web3.utils.fromWei(output, "ether");
-        setResult(`${amount} ETH`);
+      .then((result) => {
+        const amount = toEther(result);
+        setResult(`MIN_AIRLINE_FUNDING is: ${amount} ETH`);
         setError(undefined);
       })
       .catch(setError);
@@ -33,8 +33,8 @@ export const GetAirlineFundsMethod: React.VFC<{
     contract.preparedMethods
       .airlineFunds({ from: selectedAirline })
       .then((result) => {
-        const amount = Web3.utils.fromWei(result, "ether");
-        setResult(`${amount} ETH`);
+        const amount = toEther(result);
+        setResult(`${amount} ETH were funded by the airline: ${selectedAirline}`);
         setError(undefined);
       })
       .catch(setError);
@@ -46,8 +46,8 @@ export const GetAirlineFundsMethod: React.VFC<{
         <button onClick={callMinAirlineFunds}>Get MIN_AIRLINE_FUNDING</button> |{" "}
         <h3>Get Airline Funds:</h3>
         as{" "}
-        <SelectAccount
-          accounts={options}
+        <Select
+          options={options}
           value={selectedAirline}
           onChange={setSelectedAirline}
         />

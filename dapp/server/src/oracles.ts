@@ -1,5 +1,5 @@
 import { getFlightByNumber, UNKNOWN_FLIGHT } from "./data";
-import { contracts, getAccounts, web3 } from "./web3";
+import { contracts, getAccounts, logWeb3Event, web3 } from "./web3";
 
 const { flightSuretyApp } = contracts;
 
@@ -46,14 +46,13 @@ const startOracles = async () => {
   flightSuretyApp.events.OracleRegistered(
     // fromBlock: 0,
     {},
-    async (_err: any, event: { returnValues: { oracleAddress: string } }) => {
+    async (error: any, event: { returnValues: { oracleAddress: string } }) => {
       if (!event.returnValues) {
-        console.error("[event:OracleRegistered]", { _err, event });
+        logWeb3Event(event, error);
       }
       const oracleFound = oracles.find(
         (o) => o.address === event.returnValues.oracleAddress
       );
-      // console.log('[event:OracleRegistered]', oracleAddress, oracleRegistered);
       if (oracleFound) {
         oracleFound.setIndexes(
           await flightSuretyApp.methods
@@ -84,7 +83,7 @@ const startOracles = async () => {
     // { fromBlock: 0 },
     {},
     async (
-      _err: any,
+      error: any,
       event: {
         returnValues: {
           index: string;
@@ -95,7 +94,7 @@ const startOracles = async () => {
       }
     ) => {
       const { returnValues: eventValues } = event;
-      console.log("[event:OracleRequest]", eventValues);
+      logWeb3Event(event, error);
 
       const flight =
         getFlightByNumber(eventValues.flightNumber) || UNKNOWN_FLIGHT;
@@ -104,15 +103,14 @@ const startOracles = async () => {
       const oraclesToReply = getOraclesHavingIndex(eventValues.index);
       console.log(
         oraclesToReply.length,
-        "oraclesToReply",
+        "oracles to reply/report",
         oraclesToReply.map((o) => [o.address, o.indexes.join()])
       );
       for (const oracleToReply of oraclesToReply) {
-        // TODO: extract the requested flight number from event data, get its status from hardcoded flights array
         console.log("Sending reply from oracle", oracleToReply.address, [
           eventValues.index,
           eventValues.airline, // airline
-          flight.flightNumber, // flight
+          flight.flightNumber, // flightNumber
           eventValues.timestamp, // timestamp
           flight.statusCode, // statusCode
         ]);
@@ -121,7 +119,7 @@ const startOracles = async () => {
             .submitOracleResponse(
               eventValues.index, // index
               eventValues.airline, // airline
-              flight.flightNumber, // flight
+              flight.flightNumber, // flightNumber
               eventValues.timestamp, // timestamp
               flight.statusCode // statusCode
             )

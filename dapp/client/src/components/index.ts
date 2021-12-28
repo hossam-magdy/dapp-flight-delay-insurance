@@ -1,2 +1,4 @@
 export { Airlines } from "./Airlines";
-export { Passengers } from "./Passengers";
+// export * from "./Methods";
+export { PassengersAndFlights } from "./PassengersAndFlights";
+export { Select } from "./Select";

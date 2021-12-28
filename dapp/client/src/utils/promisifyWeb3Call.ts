@@ -13,6 +13,7 @@ export const promisifyWeb3Call = <T>(
     try {
       const result = await wrapperCb(resolveFn);
       if (autoResolve && !resolved) {
+        console.log("Result:", result);
         resolveFn(result);
       }
     } catch (e) {

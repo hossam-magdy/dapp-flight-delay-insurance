@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { config, FlightSuretyApp } from "config";
 import { Address, FlightStatusCode } from "types";
-import { promisifyWeb3Call } from "utils";
+import { logWeb3Event, promisifyWeb3Call } from "utils";
 import { useWeb3 } from "./useWeb3";
 
 export const useFlightSuretyAppContract = () => {
@@ -24,26 +24,31 @@ export const useFlightSuretyAppContract = () => {
   const preparedMethods = useMemo(
     () => ({
       isOperational: () => {
+        console.log("[calling isOperational()]");
         return promisifyWeb3Call<boolean>(() =>
           contract.methods.isOperational().call()
         );
       },
       airlineFunds: (args?: { from?: Address }) => {
+        console.log("[calling airlineFunds(…)]");
         return promisifyWeb3Call<string>(() =>
           contract.methods.airlineFunds().call(args)
         );
       },
       isAirline: (address: Address) => {
+        console.log("[calling isAirline(…)]");
         return promisifyWeb3Call<string>(() =>
           contract.methods.isAirline(address).call()
         );
       },
       payAirlineFunds: (args: { from: Address; value: string }) => {
+        console.log("[calling payAirlineFunds()]");
         return promisifyWeb3Call(() =>
           contract.methods.payAirlineFunds().send(args)
         );
       },
       registerAirline: (args: { newAirline: Address; from: Address }) => {
+        console.log("[calling registerAirline(…)]");
         return promisifyWeb3Call(() =>
           contract.methods
             .registerAirline(args.newAirline)
@@ -51,6 +56,7 @@ export const useFlightSuretyAppContract = () => {
         );
       },
       MIN_AIRLINE_FUNDING: (args?: { from?: Address }) => {
+        console.log("[calling MIN_AIRLINE_FUNDING()]");
         return promisifyWeb3Call<string>(() =>
           contract.methods.MIN_AIRLINE_FUNDING().call(args)
         );
@@ -62,40 +68,58 @@ export const useFlightSuretyAppContract = () => {
           timestamp: string | number;
           from?: Address;
         },
-        cbWhenStatusReceived: (statusCode: FlightStatusCode) => any
+        cbWhenStatusReceived?: (statusCode: FlightStatusCode) => any
       ) => {
-        const filter: Record<string, string | number> = {
-          airline: args.airline,
-          // Indexed strings in event values are hashed by keccack256
-          // https://blog.8bitzen.com/posts/09-12-2019-working-with-an-indexed-string-in-web3-events
-          // flightNumber: args.flightNumber,
-          // flightNumber: web3.utils.keccak256(args.flightNumber),
-          // "0x80f6999a9192fb9aaa249becaa50c8a6972f4ab3e649616f522cb3877ed495fd"
-          // "0x80f6999a9192fb9aaa249becaa50c8a6972f4ab3e649616f522cb3877ed495fd"
-          timestamp: args.timestamp,
-        };
-        console.log({ filter });
-        contract.once("OracleRequest", { filter }, (_err: any, event: any) => {
-          // console.log("[event:OracleRequest:after-fetchFlightStatus]", event);
-          filter.key = event?.returnValues?.key;
-          contract.once(
-            "FlightStatusInfo",
-            { filter },
-            (_err: any, event: any) => {
-              console.log(
-                "[event:FlightStatusInfo:after-fetchFlightStatus]",
-                event
-              );
-              cbWhenStatusReceived(event?.returnValues?.status);
-            }
-          );
-        });
+        return new Promise((resolve, reject) => {
+          try {
+            console.log("[calling fetchFlightStatus(…)]");
+            const filter: Record<string, string | number> = {
+              airline: args.airline,
+              // Indexed strings in event values are hashed by keccack256
+              // https://blog.8bitzen.com/posts/09-12-2019-working-with-an-indexed-string-in-web3-events
+              // flightNumber: args.flightNumber,
+              // flightNumber: web3.utils.keccak256(args.flightNumber),
+              // "0x80f6999a9192fb9aaa249becaa50c8a6972f4ab3e649616f522cb3877ed495fd"
+              // "0x80f6999a9192fb9aaa249becaa50c8a6972f4ab3e649616f522cb3877ed495fd"
+              timestamp: args.timestamp,
+            };
+            // console.log({ filter });
+            contract.once(
+              "OracleRequest",
+              { filter },
+              (_err: any, event: any) => {
+                // console.log("[event:OracleRequest:after-fetchFlightStatus]", event);
+                filter.key = event?.returnValues?.key;
+                contract.once(
+                  "FlightStatusInfo",
+                  { filter },
+                  (_err: any, event: any) => {
+                    // console.log(
+                    //   "[event:FlightStatusInfo:after-fetchFlightStatus]",
+                    //   event
+                    // );
+                    const statusCode = event?.returnValues?.status;
+                    cbWhenStatusReceived?.(statusCode);
+                    resolve(statusCode);
+                  }
+                );
+              }
+            );
 
-        // return promisifyWeb3Call(() =>
-        contract.methods
-          .fetchFlightStatus(args.airline, args.flightNumber, args.timestamp)
-          .send(args.from ? { from: args.from } : {});
-        // );
+            // return promisifyWeb3Call(() =>
+            contract.methods
+              .fetchFlightStatus(
+                args.airline,
+                args.flightNumber,
+                args.timestamp
+              )
+              .send(args.from ? { from: args.from } : {});
+            // );
+            if (cbWhenStatusReceived) resolve(undefined);
+          } catch (e) {
+            reject(e);
+          }
+        });
       },
       // payAirlineFunds: () => promisifyWeb3Call(() => {}),
     }),
@@ -105,39 +129,31 @@ export const useFlightSuretyAppContract = () => {
   useEffect(() => {
     if (!isWeb3Initialized) return;
 
-    console.log("calling isOperational()", { defaultAccount, isOperational });
     preparedMethods
       .isOperational()
       .then((result) => setIsOperational(!!result));
-    // contract.methods
-    //   .isOperational()
-    //   .call({ from: defaultAccount }, (_e: any, result?: boolean) => {
-    //     console.log("[isOperational]", result);
-    //     result !== undefined && setIsOperational(!!result);
-    //   });
 
     // Watch events.FlightStatusInfo
     contract.events.FlightStatusInfo({}, (error: any, event: any) => {
-      console.log("[event:FlightStatusInfo]", { error, event });
+      logWeb3Event(event, error);
     });
 
     // Watch events.OracleReport
     contract.events.OracleReport({}, (error: any, event: any) => {
-      console.log("[event:OracleReport]", { error, event });
+      logWeb3Event(event, error);
     });
 
     // Watch events.OracleRequest
     contract.events.OracleRequest({}, (error: any, event: any) => {
-      console.log("[event:OracleRequest]", { error, event });
+      logWeb3Event(event, error);
     });
 
     // Watch events.FlightStatusInfo
     contract.events.AirlineRegistered(
       { fromBlock: 0 },
       (error: any, event: { returnValues: { airline: Address } }) => {
-        const newAirline = event.returnValues.airline;
-        console.log("[event:AirlineRegistered]", newAirline, { error });
-        setAirlines((airlines) => [...airlines, newAirline]);
+        logWeb3Event(event, error);
+        setAirlines((airlines) => [...airlines, event.returnValues.airline]);
       }
     );
 

@@ -1,24 +1,27 @@
 import { Address } from "types";
-import { shortenAddress } from "utils";
+import { isAddress, shortenAddress } from "utils";
 
-export const SelectAccount: React.VFC<{
+export const Select: React.VFC<{
   value: Address | undefined;
   onChange: (a: Address) => any;
-  accounts: (
+  options: (
     | Address
-    | { address: Address; label?: string; prefix?: string; suffix?: string }
+    | { value: Address; label?: string; prefix?: string; suffix?: string }
   )[];
-}> = ({ accounts, value, onChange }) => {
+  placeholder?: string;
+}> = ({ options, value = "", onChange, placeholder = "Choose account …" }) => {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="" disabled>
-        Choose account …
+        {placeholder}
       </option>
-      {accounts.map((a) => {
-        const address = typeof a === "string" ? a : a.address;
+      {options.map((a) => {
+        const address = typeof a === "string" ? a : a.value;
         const label =
           typeof a === "string"
-            ? shortenAddress(a)
+            ? isAddress(a)
+              ? shortenAddress(a)
+              : a
             : `${a.prefix || ""}${a.label || shortenAddress(address)}${
                 a.suffix || ""
               }`;

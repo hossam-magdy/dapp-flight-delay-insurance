@@ -1,0 +1,24 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  text-align: center;
+}
+
+.status {
+  font-style: italic;
+  text-align: center;
+}
+
+.intro {
+  padding: 5px 20px;
+  line-height: 1.5em;
+}
+
+.techInfo {
+  margin-top: 25px;
+  border-top: 10px solid #ebebeb;
+  padding-top: 10px;
+}

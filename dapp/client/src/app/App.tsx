@@ -1,101 +1,54 @@
-import React, { useState } from "react";
-import { Airlines, Passengers } from "components";
+import React from "react";
+import { Airlines, PassengersAndFlights } from "components";
 import { useFlightsApi, useFlightSuretyAppContract } from "hooks";
-import { Flight } from "types";
+import styles from "./App.module.scss";
 
 export const App: React.FC = () => {
-  const { flights, getFlightByNumber } = useFlightsApi();
+  const { flights } = useFlightsApi();
 
-  const {
-    contract,
-    isOperational,
-    accounts,
-    airlines,
-    defaultAccount,
-    isWeb3Initialized,
-  } = useFlightSuretyAppContract();
-
-  const [selectedFlight, setSelectedFlight] = useState<Flight>();
-
-  console.log({
-    flights,
-    accounts,
-    defaultAccount,
-    contract,
-    isOperational,
-  });
-
-  const handleSubmitToOracles = () => {
-    if (!selectedFlight) return;
-    console.log("sending fetchFlightStatus", { selectedFlight });
-    contract.preparedMethods.fetchFlightStatus(
-      { ...selectedFlight, from: defaultAccount },
-      (statusCode) => {
-        console.log("[DONE:fetchFlightStatus]", { statusCode });
-      }
-    );
-    // .catch(console.error);
-  };
+  const { contract, isOperational, accounts, airlines, isWeb3Initialized } =
+    useFlightSuretyAppContract();
 
   return (
-    <div>
-      <header>
-        <h2>FlightSuretyApp</h2>
-        {!isWeb3Initialized ? (
-          <h4>Initializing Web3 …</h4>
-        ) : (
-          <>
-            <p>Is Operational: {`${isOperational}`}</p>
-            <div>
-              <label>
-                Flight
-                <select
-                  value={selectedFlight?.flightNumber || ""}
-                  onChange={(e) =>
-                    setSelectedFlight(getFlightByNumber(e.target.value))
-                  }
-                >
-                  <option value="" disabled>
-                    Choose flight ...
-                  </option>
-                  {flights?.map((f) => (
-                    <option key={f.flightNumber} value={f.flightNumber}>
-                      {f.flightNumber}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button onClick={handleSubmitToOracles}>
-                Request flight status (Submit to Oracles)
-              </button>
-            </div>
-            <br />
-            <div>
-              <Airlines
-                airlines={airlines}
-                accounts={accounts}
-                contract={contract}
-              />
-              <Passengers
-                flights={flights}
-                airlines={airlines}
-                accounts={accounts}
-                contract={contract}
-              />
-              <p>
-                Accounts:
-                <br />
-                <textarea
-                  cols={42}
-                  rows={32}
-                  readOnly
-                  value={accounts.join("\n")}
-                />
-              </p>
-            </div>
-          </>
-        )}
-      </header>
-    </div>
+    <article className={styles.container}>
+      <h1 className={styles.header}>FlightSuretyApp</h1>
+      {!isWeb3Initialized ? (
+        <h4>Initializing Web3 …</h4>
+      ) : (
+        <>
+          <p className={styles.status}>Is Operational: {`${isOperational}`}</p>
+          <section className={styles.intro}>
+            This is a <b>flight-delay insurance DApp</b> (decentralized
+            application). The business entities and parties involved are:{" "}
+            <i>airlines</i>, <i>passengers</i>, and <i>flights</i>. The DApp is
+            utilizing: SmartContracts (in solidity), Oracles (getting off-chain
+            info / flight status code), multi-party consensus algorithms (for
+            registering airlines and for trusting oracle reports), React (client
+            DApp).
+          </section>
+          <PassengersAndFlights
+            flights={flights}
+            passengers={accounts.filter((a) => !airlines.includes(a))}
+            accounts={accounts}
+            contract={contract}
+          />
+          <Airlines
+            airlines={airlines}
+            accounts={accounts}
+            contract={contract}
+          />
+          <section className={styles.techInfo}>
+            <p>Accounts:</p>
+            <pre>
+              {accounts
+                .map((a) =>
+                  airlines.includes(a) ? `- ${a} (is airline)` : `- ${a}`
+                )
+                .join("\n")}
+            </pre>{" "}
+          </section>
+        </>
+      )}
+    </article>
   );
 };

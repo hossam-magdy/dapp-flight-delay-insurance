@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
-import Web3 from "web3";
-import { SelectAccount } from "components/SelectAccount";
+import { Select } from "components/Select";
 import { Address, Contract } from "types";
-import styles from "./PayAirlineFundsMethod.module.scss";
+import { toWei } from "utils";
+import styles from "../CommonMethod.module.scss";
 
 export const PayAirlineFundsMethod: React.VFC<{
   airlines: Address[];
@@ -15,7 +15,7 @@ export const PayAirlineFundsMethod: React.VFC<{
   const [error, setError] = useState<String>();
 
   const options = accounts.map((a) => ({
-    address: a,
+    value: a,
     suffix: airlines.includes(a) ? " (is airline)" : "",
   }));
 
@@ -23,7 +23,7 @@ export const PayAirlineFundsMethod: React.VFC<{
     contract.preparedMethods
       .payAirlineFunds({
         from: selectedAirline,
-        value: Web3.utils.toWei(funds.toString(), "ether"),
+        value: toWei(funds),
       })
       .then(() => {
         setResult(
@@ -38,8 +38,8 @@ export const PayAirlineFundsMethod: React.VFC<{
     <>
       <div className={styles.container}>
         <h3>Pay Airline Funds:</h3>
-        <SelectAccount
-          accounts={options}
+        <Select
+          options={options}
           value={selectedAirline}
           onChange={setSelectedAirline}
         />
@@ -48,7 +48,6 @@ export const PayAirlineFundsMethod: React.VFC<{
             type="number"
             step="0.5"
             min="0"
-            size={2}
             value={funds}
             onChange={(e) => {
               const val = parseFloat(e.target.value);
@@ -61,7 +60,7 @@ export const PayAirlineFundsMethod: React.VFC<{
           onClick={callPayAirlineFunds}
           disabled={!selectedAirline || !funds}
         >
-          Pay
+          Pay Funds
         </button>
         {result && <div className={styles.result}>{result}</div>}
         {error && <div className={styles.error}>{error}</div>}

@@ -13,19 +13,12 @@
     text-align: center;
     margin: 10px;
   }
-}
 
-.header {
-  display: flex;
-  > * {
-    margin: 0 10px;
-  }
-}
+  .info {
+    font-size: 0.9em;
 
-.info {
-  font-size: 0.9em;
-
-  &::before {
-    content: "ℹ️ ";
+    &::before {
+      content: "ℹ️ ";
+    }
   }
 }

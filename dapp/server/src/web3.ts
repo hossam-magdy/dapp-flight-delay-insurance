@@ -1,8 +1,8 @@
-import Web3 from 'web3';
-import { abi as FlightSuretyAppABI } from './compiled-contracts/contracts/FlightSuretyApp.json';
-import { localhost as config } from './compiled-contracts/deployedConfig.json';
+import Web3 from "web3";
+import { abi as FlightSuretyAppABI } from "./compiled-contracts/contracts/FlightSuretyApp.json";
+import { localhost as config } from "./compiled-contracts/deployedConfig.json";
 
-const url = config.url.replace('http', 'ws');
+const url = config.url.replace("http", "ws");
 const wsProvider = new Web3.providers.WebsocketProvider(url);
 
 const web3 = new Web3(wsProvider);
@@ -25,4 +25,17 @@ const contracts = {
   ),
 } as const;
 
-export { web3, contracts, getAccounts };
+const logWeb3Event = (event: any, error?: any) => {
+  const returnValues = Object.fromEntries(
+    Object.entries(event.returnValues).filter(
+      ([k, v]) => `${parseInt(k)}` !== k
+    )
+  );
+  if (error) {
+    console.log(`[event:${event.event}]:`, returnValues, { error });
+  } else {
+    console.log(`[event:${event.event}]:`, returnValues);
+  }
+};
+
+export { web3, contracts, getAccounts, logWeb3Event };

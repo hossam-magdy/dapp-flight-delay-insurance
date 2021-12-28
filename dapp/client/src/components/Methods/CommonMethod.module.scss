@@ -1,0 +1,63 @@
+.container {
+  display: flex;
+  border: 1px solid #b4b4b4;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 15px 0;
+  align-items: center;
+  flex-flow: wrap;
+  transition: all 400ms ease-in-out;
+
+  &:hover {
+    border-color: #000000;
+    background-color: #f7f7f7;
+  }
+
+  > * {
+    margin: 0 10px;
+  }
+
+  > .result {
+    margin-top: 5px;
+    color: #213292;
+    width: 100%;
+  }
+
+  > .error {
+    margin-top: 5px;
+    color: #ad2a2a;
+    width: 100%;
+  }
+
+  & input[type="number"] {
+    width: 65px;
+  }
+
+  & button {
+    cursor: pointer;
+  }
+
+  & select,
+  & input,
+  & button {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .info {
+    color: #838383;
+    cursor: default;
+    font-size: 0.8em;
+    margin-top: 15px;
+    transition: color 100ms linear;
+    width: 100%;
+
+    &::before {
+      content: "ℹ️ ";
+    }
+
+    &:hover {
+      color: #000000;
+    }
+  }
+}

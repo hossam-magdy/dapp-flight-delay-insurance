@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
-import { SelectAccount } from "components/SelectAccount";
+import { Select } from "components/Select";
 import { Address, Contract } from "types";
-import styles from "./RegisterAirlineMethod.module.scss";
+import styles from "../CommonMethod.module.scss";
 
 export const RegisterAirlineMethod: React.VFC<{
   airlines: Address[];
@@ -13,7 +13,7 @@ export const RegisterAirlineMethod: React.VFC<{
   const [error, setError] = useState<String>();
 
   const options = accounts.map((a) => ({
-    address: a,
+    value: a,
     suffix: airlines.includes(a) ? " (is airline)" : "",
   }));
 
@@ -28,13 +28,13 @@ export const RegisterAirlineMethod: React.VFC<{
     <>
       <div className={styles.container}>
         <h3>Register new airline:</h3>
-        <SelectAccount
-          accounts={options}
+        <Select
+          options={options}
           value={newAirline}
           onChange={setNewAirline}
         />
         as
-        <SelectAccount accounts={options} value={from} onChange={setFrom} />
+        <Select options={options} value={from} onChange={setFrom} />
         <button onClick={registerNewAirline} disabled={!newAirline || !from}>
           Register
         </button>

@@ -1,25 +1,31 @@
 import { Address, Contract, Flight } from "types";
-import styles from "./Passengers.module.scss";
+import {
+  GetPassengerCreditMethod,
+  PurchaseFlightInsuranceMethod,
+  RequestFlightStatusMethod,
+  WithdrawPassengerCreditMethod,
+} from "../Methods";
+import styles from "./PassengersAndFlights.module.scss";
 
-export const Passengers: React.VFC<{
-  flights?: Flight[];
-  airlines: Address[];
+export const PassengersAndFlights: React.VFC<{
+  flights: Flight[];
+  passengers: Address[];
   accounts: Address[];
   contract: Contract;
-}> = ({ flights = [], airlines, accounts, contract }) => {
+}> = ({ flights = [], passengers, accounts, contract }) => {
   return (
-    <div className={styles.container}>
-      <h2>Passengers</h2>
+    <section className={styles.container}>
+      <h2>Passengers and Flights</h2>
       <div>
-        Passengers registered:
+        {/* PassengersAndFlights registered:
         <br />
         <textarea
           cols={42}
           rows={5}
           readOnly
           value={flights.map((f) => JSON.stringify(f)).join("\n")}
-        />
-        <p>
+        /> */}
+        <p className={styles.info}>
           Passengers can choose from a fixed list of flight numbers and
           departures
           <br />
@@ -34,23 +40,30 @@ export const Passengers: React.VFC<{
           Insurance payouts are not sent directly to passenger's wallet
         </p>
       </div>
-      {/*
-      <PurchaseFlightInsurance
-        airlines={airlines}
+      <RequestFlightStatusMethod
+        flights={flights}
+        passengers={passengers}
         accounts={accounts}
         contract={contract}
       />
-      <CreditInquiry
-        airlines={airlines}
+      <PurchaseFlightInsuranceMethod
+        flights={flights}
+        passengers={passengers}
         accounts={accounts}
         contract={contract}
       />
-      <WithdrawCredit
-        airlines={airlines}
+      <GetPassengerCreditMethod
+        flights={flights}
+        passengers={passengers}
         accounts={accounts}
         contract={contract}
       />
-      */}
-    </div>
+      <WithdrawPassengerCreditMethod
+        flights={flights}
+        passengers={passengers}
+        accounts={accounts}
+        contract={contract}
+      />
+    </section>
   );
 };
