@@ -1,36 +1,86 @@
-# FlightSurety
+# Flight Surety: flight-delay insurace DApp
 
-## TODOs
+A sample decentralized application (DApp) project.
+
+The DApp is utilizing: Smart Contracts (in solidity), Oracles (getting off-chain info / flight status code), multi-party consensus algorithms (for registering airlines and for trusting oracle reports), React (client DApp).
+
+## Screenshot
+
+![Screenshot](./screenshot.png)
+
+## Install
+
+Clone the repo, then:
+
+- `yarn install`
+- `yarn setup` (runs `yarn install` in both `dapp/client/` and `dapp/server/`)
+- `truffle compile`
+
+## Development
+
+Run local ethereum blockchain:
+
+- `truffle develop` --then in repl--> `migrate --reset`
+
+Start local dev servers:
+
+- `yarn start` (starts `dapp/client/` and `dapp/server/`)
+
+To view dapp:
+
+- `http://localhost:8000`
+
+To tun tests:
+
+- `truffle test`
+
+## Deployment
+
+To build dapp for prod:
+
+- Update `truffle.js` to configure target network (Rinkeby, Kovan, Mainnet, …).
+- `yarn install && yarn setup && truffle migrate --reset`
+- `yarn build`
+- Deploy the contents of the folders:
+  - `dapp/client/build` the dapp (React)
+  - `dapp/server/build` the oracles (or its simulation)
+
+---
+
+## ToDo's & dev notes
+
+<details>
+<summary>Expand/Collapse</summary>
 
 Rubrics: https://review.udacity.com/#!/rubrics/3609/view
 
 - [ ] Separation of Concerns, Operational Control and “Fail Fast”
-  - [~] FlightSuretyData.sol for data persistence
+  - [ ] FlightSuretyData.sol for data persistence
   - [~] FlightSuretyApp.sol for app logic and oracles code
-  - [ ] Passenger can purchase insurance for flight
-  - [ ] DAPP Triggers contract to request flight status update
+  - [x] Passenger can purchase insurance for flight
+  - [x] DAPP Triggers contract to request flight status update
   - [x] A server app has been created for simulating oracle behavior. Server can be launched with “npm run server”
-  - [ ] operational status control implemented
-  - [~] Contract functions “fail fast” by having a majority of “require()” calls at the beginning of function body
+  - [x] operational status control implemented
+  - [x] Contract functions “fail fast” by having a majority of “require()” calls at the beginning of function body
 - [x] Airlines (Demonstrated either with Truffle test or by making call from client Dapp)
       First airline is registered when contract is deployed
   - [x] Only existing airline may register a new airline until there are at least four airlines registered
   - [x] Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
   - [x] Airline can be registered, but does not participate in contract until it submits funding of 10 ether (make sure it is not 10 wei)
 - [ ] Passengers
-  - [ ] Passengers can choose from a fixed list of flight numbers and departures that are defined in the Dapp client
-  - [ ] Your UI implementation should include:
-    - [ ] Fields for Airline Address and Airline Name
-    - [ ] Amount of funds to send/which airline to send to
-    - [ ] Ability to purchase flight insurance for no more than 1 ether
-  - [ ] Passengers may pay up to 1 ether for purchasing flight insurance
-  - [ ] If flight is delayed due to airline fault, passenger receives credit of 1.5X the amount they paid
-  - [ ] Passenger can withdraw any funds owed to them as a result of receiving credit for insurance payout (Insurance payouts are not sent directly to passenger’s wallet)
-- [ ] Oracles (Server App)
+  - [x] Passengers can choose from a fixed list of flight numbers and departures that are defined in the Dapp client
+  - [x] Your UI implementation should include:
+    - [~] Fields for Airline Address and Airline Name
+    - [x] Amount of funds to send/which airline to send to
+    - [x] Ability to purchase flight insurance for no more than 1 ether
+  - [x] Passengers may pay up to 1 ether for purchasing flight insurance
+  - [x] If flight is delayed due to airline fault, passenger receives credit of 1.5X the amount they paid
+  - [x] Passenger can withdraw any funds owed to them as a result of receiving credit for insurance payout (Insurance payouts are not sent directly to passenger’s wallet)
+- [x] Oracles (Server App)
   - [x] Oracle functionality is implemented in the server app
   - [x] Upon startup, 20+ oracles are registered and their assigned indexes are persisted in memory
   - [x] Update flight status requests from client Dapp result in OracleRequest event emitted by Smart Contract that is captured by server (displays on console and handled in code)
-    - [ ] Display nicely in console
+    - [x] Display nicely in console
   - [x] Server will loop through all registered oracles, identify those oracles for which the OracleRequest event applies, and respond by calling into FlightSuretyApp contract with random status code of Unknown (0), On Time (10) or Late Airline (20), Late Weather (30), Late Technical (40), or Late Other (50)
 
 ```
@@ -68,6 +118,11 @@ Accounts:
 (28) 0x283bbe7817ab5a0612b1726b01e54b0ab7a172a9
 (29) 0x3301cdf79a69b47bd3bec2f2d2983c1341c1f84e
 (30) 0x29341c7f4a5e7a01ad565af00facc7d45128542f
+(31) 0x2211d20b6284a2e31510b01c62ebfe4ded585243
+(32) 0x467829a222351dde5abaaa63f179c6b6b2727692
+(33) 0x603e65a6609edd58f2dfcba67997cff478fc0c29
+(34) 0x3d4ec5cc6a52bb16335f506f58e3d72b8b735ef9
+(35) 0xf98425e9406dfae74db24323d736ab5a491c3aca
 
 Private Keys:
 (0) 3cc0e244320ddaf8e75599658cc45c661f018f5f6be11041b437003ace718ffb
@@ -101,60 +156,24 @@ Private Keys:
 (28) 88453afdb69e0fc34481160b888ca9f18e4137a552ac1464e23662dfe679b442
 (29) e36a16047a7e6af49fab32f80c5a8d8059c8fb40d75579c55aafdeacb7284ee4
 (30) d30fa1696f803e5007f81f12542e0083a19afbb527c3b7a1d6a568a7d268fed5
-
-Mnemonic: tilt lunar exile blame merry good little undo evidence useful rotate error
+(31) 2cbd3b0c120670fa9c2383e7c0fbbe19c00fea4ffd36a55366a5d9aa4deefd08
+(32) 328ea546c3044b9c9eef5dd5ab37f7cd4a2da326ab59c837693334ae3fde8a9e
+(33) cbaff751d505029028bd0baa359d32b913b72b4c42dfd96d095c95c13901280d
+(34) e3153fe8ba688bb6ef0e25f7099322557f506c00f6f5df13a5760c4b4550842d
+(35) 81c4cba8837a9ba2a8c5a7ab5a9844120690356be213face19db6753519fec67
 ```
+
+</details>
 
 ---
 
-Source: https://github.com/udacity/FlightSurety
-
-FlightSurety is a sample application project for Udacity's Blockchain course.
-
-## Install
-
-This repository contains Smart Contract code in Solidity (using Truffle), tests (also using Truffle), dApp scaffolding (using HTML, CSS and JS) and server app scaffolding.
-
-To install, download or clone the repo, then:
-
-`npm install`
-`truffle compile`
-
-## Develop Client
-
-To run truffle tests:
-
-`truffle test ./test/flightSurety.js`
-`truffle test ./test/oracles.js`
-
-To use the dapp:
-
-`truffle migrate`
-`npm run dapp`
-
-To view dapp:
-
-`http://localhost:8000`
-
-## Develop Server
-
-`npm run server`
-`truffle test ./test/oracles.js`
-
-## Deploy
-
-To build dapp for prod:
-`npm run dapp:prod`
-
-Deploy the contents of the ./dapp folder
-
 ## Resources
 
-- [How does Ethereum work anyway?](https://medium.com/@preethikasireddy/how-does-ethereum-work-anyway-22d1df506369)
-- [BIP39 Mnemonic Generator](https://iancoleman.io/bip39/)
-- [Truffle Framework](http://truffleframework.com/)
-- [Ganache Local Blockchain](http://truffleframework.com/ganache/)
-- [Remix Solidity IDE](https://remix.ethereum.org/)
-- [Solidity Language Reference](http://solidity.readthedocs.io/en/v0.4.24/)
-- [Ethereum Blockchain Explorer](https://etherscan.io/)
-- [Web3Js Reference](https://github.com/ethereum/wiki/wiki/JavaScript-API)
+- [Blockchain Developer Nanodegree Program](https://udacity.com/course/nd1309)
+- [Solidity Language Docs](https://docs.soliditylang.org)
+- [web3.js Docs](https://web3js.readthedocs.io)
+- [Truffle framework](http://trufflesuite.com)
+- [Remix.Ethereum.org](https://remix.ethereum.org)
+- [EIP specs: ERC20 (Token), ERC721 (Non-Fungible Token), …](https://eips.ethereum.org/erc)
+- [Spin-from/parent repo](https://github.com/hossam-magdy/web3/tree/9150752/L5.Project-FlightSurety)
+- [Project's Starter Code](https://github.com/udacity/FlightSurety/tree/28a78bc)
