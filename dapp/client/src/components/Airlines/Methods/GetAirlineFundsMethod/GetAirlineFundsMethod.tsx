@@ -9,7 +9,7 @@ export const GetAirlineFundsMethod: React.VFC<{
   accounts: Address[];
   contract: Contract;
 }> = ({ airlines, accounts, contract }) => {
-  const [selectedAirline, setSelectedAirline] = useState<Address>();
+  const [selectedAirline, setSelectedAirline] = useState<Address>('');
   const [result, setResult] = useState<String>();
   const [error, setError] = useState<String>();
 

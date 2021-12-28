@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import "./Owner.sol";
 
-// TODO use modifier requireIsOperational on all state-changing functions
 abstract contract Operational is Owner {
     bool private _isOperational = true;
 

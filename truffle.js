@@ -10,7 +10,7 @@ const mnemonic =
 
 const url = "http://127.0.0.1:8545/";
 
-const noOfAccounts = 31; // 1 owner, 5 airlines, 5 passengers, rest are/can be oracles
+const noOfAccounts = 36; // 1 owner, 5 airlines, 5 passengers, rest are/can be oracles
 
 module.exports = {
   networks: {
@@ -20,7 +20,7 @@ module.exports = {
           mnemonic,
           url,
           // for `truffle test`
-          numberOfAddresses: noOfAccounts + 1,
+          numberOfAddresses: noOfAccounts,
         }),
       network_id: "*", // Match any network id
       // host: '127.0.0.1',
@@ -30,7 +30,7 @@ module.exports = {
     develop: {
       port: 8545,
       // for `truffle develop`
-      accounts: noOfAccounts + 1,
+      accounts: noOfAccounts,
     },
   },
   compilers: {

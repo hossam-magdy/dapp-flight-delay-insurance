@@ -10,26 +10,9 @@ import "./modules/AuthorizedCaller.sol";
 contract FlightSuretyData is Owner, Operational, AuthorizedCaller {
     using SafeMath for uint256;
 
-    /********************************************************************************************/
-    /*                                       DATA VARIABLES                                     */
-    /********************************************************************************************/
+    address[] airlines;
 
-    address private contractOwner; // Account used to deploy contract
-    bool private operational = true; // Blocks all state changes throughout the contract if false
-
-    uint256[] airlines;
-
-    /********************************************************************************************/
-    /*                                       EVENT DEFINITIONS                                  */
-    /********************************************************************************************/
-
-    /**
-     * @dev Constructor
-     *      The deploying account becomes contractOwner
-     */
-    constructor() {
-        contractOwner = msg.sender;
-    }
+    constructor() {}
 
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
@@ -39,12 +22,8 @@ contract FlightSuretyData is Owner, Operational, AuthorizedCaller {
      * @dev Add an airline to the registration queue
      *      Can only be called from FlightSuretyApp contract
      */
-    function registerAirline(address airline) external {
-        // airlines.push(airline);
-    }
-
-    function test() external view onlyAuthorizedCaller returns (uint256) {
-        return 17;
+    function registerAirline(address airline) external onlyAuthorizedCaller {
+        airlines.push(airline);
     }
 
     /**

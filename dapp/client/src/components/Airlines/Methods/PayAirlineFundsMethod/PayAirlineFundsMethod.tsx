@@ -46,7 +46,7 @@ export const PayAirlineFundsMethod: React.VFC<{
         <div>
           <input
             type="number"
-            step="0.1"
+            step="0.5"
             min="0"
             size={2}
             value={funds}

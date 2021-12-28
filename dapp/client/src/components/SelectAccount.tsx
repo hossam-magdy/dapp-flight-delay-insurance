@@ -10,11 +10,7 @@ export const SelectAccount: React.VFC<{
   )[];
 }> = ({ accounts, value, onChange }) => {
   return (
-    <select
-      defaultValue={""}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    >
+    <select value={value} onChange={(e) => onChange(e.target.value)}>
       <option value="" disabled>
         Choose account …
       </option>

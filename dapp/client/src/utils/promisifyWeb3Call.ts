@@ -1,7 +1,8 @@
 import { parseTxError } from "./parseTxError";
 
 export const promisifyWeb3Call = <T>(
-  wrapperCb: (resolveFn: (result: T) => any) => any
+  wrapperCb: (resolveFn: (result: T) => any) => any,
+  { autoResolve = true }: { autoResolve?: boolean } = {}
 ) =>
   new Promise<T>(async (resolve, reject) => {
     let resolved = false;
@@ -11,13 +12,15 @@ export const promisifyWeb3Call = <T>(
     };
     try {
       const result = await wrapperCb(resolveFn);
-      if (!resolved) {
+      if (autoResolve && !resolved) {
         resolveFn(result);
       }
     } catch (e) {
       const { revertReason, error } = parseTxError(e);
       if (typeof revertReason === "string") {
         reject(revertReason);
+      } else if (typeof error?.message === "string") {
+        reject(error.message);
       } else {
         console.error("Unknown Error", { error });
         reject("Unknown Error: " + error?.message);

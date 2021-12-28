@@ -1,13 +1,13 @@
-import { getFlightByNumber, UNKNOWN_FLIGHT } from './data';
-import { contracts, getAccounts, web3 } from './web3';
+import { getFlightByNumber, UNKNOWN_FLIGHT } from "./data";
+import { contracts, getAccounts, web3 } from "./web3";
 
 const { flightSuretyApp } = contracts;
 
 // [0] is owner, [1-5] are airlines, [6-10] are passengers, so oracles start from [11-…]
 const firstAccountIndex = 11;
-const noOfOracles = 15;
+const noOfOracles = 25;
 
-const regFee = web3.utils.toWei('0.4', 'ether');
+const regFee = web3.utils.toWei("0.4", "ether");
 
 class Oracle {
   constructor(public address: string, public indexes: number[] = []) {}
@@ -28,6 +28,10 @@ const startOracles = async () => {
   // STEP: spin-up/register the oracles and maybe persist the state (index)
   //#region Register Oracles (send registration request to smart cpntract, get an index/ID)
   const accounts = await getAccounts();
+  if (!accounts || !accounts.length) {
+    console.error("Can not fetch accounts");
+    process.exit(1);
+  }
   for (let i = firstAccountIndex; i < noOfOracles + firstAccountIndex; i++) {
     const address = accounts[i];
     console.log(
@@ -44,7 +48,7 @@ const startOracles = async () => {
     {},
     async (_err: any, event: { returnValues: { oracleAddress: string } }) => {
       if (!event.returnValues) {
-        console.error('[event:OracleRegistered]', { _err, event });
+        console.error("[event:OracleRegistered]", { _err, event });
       }
       const oracleFound = oracles.find(
         (o) => o.address === event.returnValues.oracleAddress
@@ -69,7 +73,7 @@ const startOracles = async () => {
       .registerOracle()
       .send({ from: address, value: regFee })
       .catch((e: any) => {
-        console.error('[ERROR:registerOracle]', address, e.message, e);
+        console.error("[ERROR:registerOracle]", address, e.message, e);
       });
   });
 
@@ -85,41 +89,46 @@ const startOracles = async () => {
         returnValues: {
           index: string;
           airline: string;
-          flight: string;
+          flightNumber: string;
           timestamp: number;
         };
       }
     ) => {
       const { returnValues: eventValues } = event;
-      console.log('[event:OracleRequest]', eventValues);
+      console.log("[event:OracleRequest]", eventValues);
 
-      const flight = getFlightByNumber(eventValues.flight) || UNKNOWN_FLIGHT;
+      const flight =
+        getFlightByNumber(eventValues.flightNumber) || UNKNOWN_FLIGHT;
       flight.timestamp = eventValues.timestamp;
 
       const oraclesToReply = getOraclesHavingIndex(eventValues.index);
       console.log(
         oraclesToReply.length,
-        'oraclesToReply',
+        "oraclesToReply",
         oraclesToReply.map((o) => [o.address, o.indexes.join()])
       );
       for (const oracleToReply of oraclesToReply) {
         // TODO: extract the requested flight number from event data, get its status from hardcoded flights array
-        console.log('Sending reply from oracle', oracleToReply.address, [
+        console.log("Sending reply from oracle", oracleToReply.address, [
           eventValues.index,
-          flight.airline, // airline
+          eventValues.airline, // airline
           flight.flightNumber, // flight
-          flight.timestamp, // timestamp
+          eventValues.timestamp, // timestamp
           flight.statusCode, // statusCode
         ]);
-        await flightSuretyApp.methods
-          .submitOracleResponse(
-            eventValues.index, // index
-            flight.airline, // airline
-            flight.flightNumber, // flight
-            flight.timestamp, // timestamp
-            flight.statusCode // statusCode
-          )
-          .call({ from: oracleToReply.address });
+        try {
+          await flightSuretyApp.methods
+            .submitOracleResponse(
+              eventValues.index, // index
+              eventValues.airline, // airline
+              flight.flightNumber, // flight
+              eventValues.timestamp, // timestamp
+              flight.statusCode // statusCode
+            )
+            .send({ from: oracleToReply.address });
+        } catch (e: any) {
+          console.error("[Failed to submitOracleResponse]", e?.message);
+        }
         // console.log({ hash });
       }
     }

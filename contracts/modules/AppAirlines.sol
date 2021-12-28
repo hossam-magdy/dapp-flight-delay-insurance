@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import "./MultiPartyConsensusOnAddressByAddress.sol";
 
-// TODO count registered airlines, if > 4, then use "registration queue", and "multi-party consensus"
-// TODO invoke Data contract registerAirline
 abstract contract AppAirlines is MultiPartyConsensusOnAddressByAddress {
     struct Airline {
         // address airline;

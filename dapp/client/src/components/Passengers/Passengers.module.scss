@@ -1,0 +1,13 @@
+.container {
+  border: 1px solid;
+  padding: 10px 10px 0 10px;
+  border-radius: 15px;
+  margin: 15px 0;
+  align-items: center;
+  flex-flow: wrap;
+
+  > h2 {
+    text-align: center;
+    margin: 10px;
+  }
+}

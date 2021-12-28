@@ -10,6 +10,9 @@ import "./modules/Owner.sol";
 import "./modules/Operational.sol";
 import "./modules/AppAirlines.sol";
 
+// TODO: link the data contract, and store only operational-data in the app contract
+//       (i.e: move airlinesRegistered array to data contract, and invoke Data contract registerAirline)
+// TODO: ensure using modifier "requireIsOperational" on all needed methods (state-changing only?)
 contract FlightSuretyApp is Owner, Operational, AppAirlines {
     using SafeMath for uint256; // Allow SafeMath functions to be called for all uint256 types (similar to "prototype" in Javascript)
 
@@ -23,24 +26,24 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
 
     struct Flight {
         bool isRegistered;
-        FlightStatusCode statusCode;
+        StatusCode statusCode;
         uint256 updatedTimestamp;
         address airline;
     }
-    mapping(FlightKey => Flight) private flights;
+    mapping(StatusRequestKey => Flight) private flights;
 
-    // FlightKey = hash(index, flight, timestamp)
-    type FlightKey is bytes32;
+    // StatusRequestKey = hash(index, airline, flightNumber, timestamp)
+    type StatusRequestKey is bytes32;
 
     // 0, 10, 20, 30, 40; as per constants STATUS_CODE_*
-    type FlightStatusCode is uint8;
+    type StatusCode is uint8;
 
     constructor() {}
 
     /**
      * @dev Register a future flight for insuring.
      */
-    function registerFlight() external pure {
+    function registerFlight() external requireIsOperational {
         // TODO?
     }
 
@@ -49,30 +52,47 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
      */
     function processFlightStatus(
         address airline,
-        string memory flight,
+        string memory flightNumber,
         uint256 timestamp,
-        FlightStatusCode statusCode
-    ) internal pure {
+        StatusCode statusCode
+    ) internal requireIsOperational {
         // TODO?
     }
 
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
         address airline,
-        string memory flight,
+        string memory flightNumber,
         uint256 timestamp
-    ) external {
+    ) external requireIsOperational {
         uint8 index = _getRandomIndex(msg.sender);
 
-        FlightKey key = _getFlightKey(index, airline, flight, timestamp);
+        StatusRequestKey key = _getStatusRequestKey(
+            index,
+            airline,
+            flightNumber,
+            timestamp
+        );
 
-        flightStatusRequests[key] = FlightStatusRequest({
+        flightStatusRequests[key] = StatusRequest({
             requester: msg.sender,
             isOpen: true
         });
 
-        emit OracleRequest(index, airline, flight, timestamp);
+        emit OracleRequest(
+            index,
+            airline,
+            flightNumber,
+            timestamp,
+            StatusRequestKey.unwrap(key)
+        );
     }
+
+    /********************************************************************************************/
+    /*                                   INSURANCE AND PAYMENTS                                 */
+    /********************************************************************************************/
+
+    function purchaseFlightInsurance() external payable {}
 
     /********************************************************************************************/
     /*                                      ORACLE MANAGEMENT                                   */
@@ -96,7 +116,7 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     mapping(address => Oracle) private oracles;
 
     // Model for responses from oracles
-    struct FlightStatusRequest {
+    struct StatusRequest {
         address requester; // Account that requested status
         bool isOpen; // If open, oracle responses are accepted
         // This lets us group responses and identify
@@ -104,23 +124,25 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     }
 
     // Track all oracle responses
-    mapping(FlightKey => mapping(FlightStatusCode => address[]))
+    mapping(StatusRequestKey => mapping(StatusCode => address[]))
         private flightStatusOracleResponses;
-    mapping(FlightKey => FlightStatusRequest) private flightStatusRequests;
+    mapping(StatusRequestKey => StatusRequest) private flightStatusRequests;
 
     // Event fired each time an oracle submits a response
     event FlightStatusInfo(
-        address airline,
-        string flight,
-        uint256 timestamp,
-        uint8 status
+        address indexed airline,
+        string flightNumber,
+        uint256 indexed timestamp,
+        uint8 status,
+        bytes32 indexed key
     );
 
     event OracleReport(
-        address airline,
-        string flight,
-        uint256 timestamp,
-        uint8 status
+        address indexed airline,
+        string flightNumber,
+        uint256 indexed timestamp,
+        uint8 status,
+        bytes32 indexed key
     );
 
     // Event fired when flight status request is submitted
@@ -128,22 +150,28 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     // they fetch data and submit a response
     event OracleRequest(
         uint8 index,
-        address airline,
-        string flight,
-        uint256 timestamp
+        address indexed airline,
+        string flightNumber,
+        uint256 indexed timestamp,
+        bytes32 indexed key
     );
 
     event OracleRegistered(address oracleAddress);
 
     // Register an oracle with the contract
-    function registerOracle() external payable {
+    function registerOracle() external payable requireIsOperational {
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
         uint8[3] memory indexes = _generateIndexes(msg.sender);
         oracles[msg.sender] = Oracle({isRegistered: true, indexes: indexes});
         emit OracleRegistered(msg.sender);
     }
 
-    function getMyIndexes() external view returns (uint8[3] memory) {
+    function getMyIndexes()
+        external
+        view
+        requireIsOperational
+        returns (uint8[3] memory)
+    {
         require(
             oracles[msg.sender].isRegistered,
             "Not registered as an oracle"
@@ -158,10 +186,10 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
     function submitOracleResponse(
         uint8 index,
         address airline,
-        string memory flight,
+        string memory flightNumber,
         uint256 timestamp,
         uint8 statusCodeInt
-    ) external {
+    ) external requireIsOperational {
         require(
             (oracles[msg.sender].indexes[0] == index) ||
                 (oracles[msg.sender].indexes[1] == index) ||
@@ -169,38 +197,59 @@ contract FlightSuretyApp is Owner, Operational, AppAirlines {
             "Index does not match oracle request"
         );
 
-        FlightKey key = _getFlightKey(index, airline, flight, timestamp);
+        StatusRequestKey key = _getStatusRequestKey(
+            index,
+            airline,
+            flightNumber,
+            timestamp
+        );
         require(
             flightStatusRequests[key].isOpen,
-            "Flight or timestamp do not match oracle request"
+            "Flight or timestamp do not match oracle request, or Oracle consensus was already fulfilled"
         );
 
-        FlightStatusCode statusCode = FlightStatusCode.wrap(statusCodeInt);
+        StatusCode statusCode = StatusCode.wrap(statusCodeInt);
 
         flightStatusOracleResponses[key][statusCode].push(msg.sender);
 
         // Information isn't considered verified until at least MIN_RESPONSES
         // oracles respond with the *** same *** information
-        emit OracleReport(airline, flight, timestamp, statusCodeInt);
+        emit OracleReport(
+            airline,
+            flightNumber,
+            timestamp,
+            statusCodeInt,
+            StatusRequestKey.unwrap(key)
+        );
         if (
             flightStatusOracleResponses[key][statusCode].length >= MIN_RESPONSES
         ) {
-            emit FlightStatusInfo(airline, flight, timestamp, statusCodeInt);
+            emit FlightStatusInfo(
+                airline,
+                flightNumber,
+                timestamp,
+                statusCodeInt,
+                StatusRequestKey.unwrap(key)
+            );
+
+            delete flightStatusRequests[key];
 
             // Handle flight status as appropriate
-            processFlightStatus(airline, flight, timestamp, statusCode);
+            processFlightStatus(airline, flightNumber, timestamp, statusCode);
         }
     }
 
-    function _getFlightKey(
+    function _getStatusRequestKey(
         uint8 index,
         address airline,
-        string memory flight,
+        string memory flightNumber,
         uint256 timestamp
-    ) internal pure returns (FlightKey) {
+    ) internal pure returns (StatusRequestKey) {
         return
-            FlightKey.wrap(
-                keccak256(abi.encodePacked(index, airline, flight, timestamp))
+            StatusRequestKey.wrap(
+                keccak256(
+                    abi.encodePacked(index, airline, flightNumber, timestamp)
+                )
             );
     }
 

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Airlines } from "components";
+import { Airlines, Passengers } from "components";
 import { useFlightsApi, useFlightSuretyAppContract } from "hooks";
 import { Flight } from "types";
-import { shortenAddress } from "utils";
 
 export const App: React.FC = () => {
   const { flights, getFlightByNumber } = useFlightsApi();
@@ -27,16 +26,15 @@ export const App: React.FC = () => {
   });
 
   const handleSubmitToOracles = () => {
+    if (!selectedFlight) return;
     console.log("sending fetchFlightStatus", { selectedFlight });
-    contract.methods
-      .fetchFlightStatus(
-        selectedFlight?.airline,
-        selectedFlight?.flightNumber,
-        selectedFlight?.timestamp
-      )
-      .send({ from: defaultAccount }, (error: any, txHash: string) => {
-        console.log({ error, txHash });
-      });
+    contract.preparedMethods.fetchFlightStatus(
+      { ...selectedFlight, from: defaultAccount },
+      (statusCode) => {
+        console.log("[DONE:fetchFlightStatus]", { statusCode });
+      }
+    );
+    // .catch(console.error);
   };
 
   return (
@@ -52,11 +50,14 @@ export const App: React.FC = () => {
               <label>
                 Flight
                 <select
-                  value={selectedFlight?.flightNumber}
+                  value={selectedFlight?.flightNumber || ""}
                   onChange={(e) =>
                     setSelectedFlight(getFlightByNumber(e.target.value))
                   }
                 >
+                  <option value="" disabled>
+                    Choose flight ...
+                  </option>
                   {flights?.map((f) => (
                     <option key={f.flightNumber} value={f.flightNumber}>
                       {f.flightNumber}
@@ -64,11 +65,19 @@ export const App: React.FC = () => {
                   ))}
                 </select>
               </label>
-              <button onClick={handleSubmitToOracles}>Submit to Oracles</button>
+              <button onClick={handleSubmitToOracles}>
+                Request flight status (Submit to Oracles)
+              </button>
             </div>
             <br />
             <div>
               <Airlines
+                airlines={airlines}
+                accounts={accounts}
+                contract={contract}
+              />
+              <Passengers
+                flights={flights}
                 airlines={airlines}
                 accounts={accounts}
                 contract={contract}
@@ -80,7 +89,7 @@ export const App: React.FC = () => {
                   cols={42}
                   rows={32}
                   readOnly
-                  value={accounts.map(shortenAddress).join("\n")}
+                  value={accounts.join("\n")}
                 />
               </p>
             </div>
