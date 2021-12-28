@@ -67,12 +67,24 @@ const startOracles = async () => {
       }
     }
   );
-  oracles.forEach(({ address }) => {
-    flightSuretyApp.methods
+  // TX of registerOracle() has a lot of randmization and include random-length loops
+  // Often they fail with not setting the gas or even setting it as the estimateGase
+  // Providing double the estimate proved to be sufficient
+  const gas =
+    (await flightSuretyApp.methods.registerOracle().estimateGas({
+      value: regFee,
+    })) * 2;
+  oracles.forEach(async ({ address }) => {
+    await flightSuretyApp.methods
       .registerOracle()
-      .send({ from: address, value: regFee })
+      .send({ from: address, value: regFee, gas })
       .catch((e: any) => {
-        console.error("[ERROR:registerOracle]", address, e.message, e);
+        const txHash = Object.keys(e?.data || {})?.[0];
+        console.error(
+          "[ERROR:registerOracle]",
+          { oracleAddress: address, txHash },
+          e?.message
+        );
       });
   });
 
@@ -115,15 +127,16 @@ const startOracles = async () => {
           flight.statusCode, // statusCode
         ]);
         try {
-          await flightSuretyApp.methods
-            .submitOracleResponse(
-              eventValues.index, // index
-              eventValues.airline, // airline
-              flight.flightNumber, // flightNumber
-              eventValues.timestamp, // timestamp
-              flight.statusCode // statusCode
-            )
-            .send({ from: oracleToReply.address });
+          const tx = flightSuretyApp.methods.submitOracleResponse(
+            eventValues.index, // index
+            eventValues.airline, // airline
+            flight.flightNumber, // flightNumber
+            eventValues.timestamp, // timestamp
+            flight.statusCode // statusCode
+          );
+          const args = { from: oracleToReply.address };
+          const gas = await tx.estimateGas(args);
+          await tx.send({ ...args, gas });
         } catch (e: any) {
           console.error("[Failed to submitOracleResponse]", e?.message);
         }

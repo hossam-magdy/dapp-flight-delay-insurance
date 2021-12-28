@@ -13,10 +13,7 @@ export const useFlightSuretyAppContract = () => {
   } = useWeb3();
 
   const [contract] = useState(
-    () =>
-      new web3.eth.Contract(FlightSuretyApp.abi as any, config.appAddress, {
-        gas: 220000, // TODO: check why it fails lower than that, or if unset
-      })
+    () => new web3.eth.Contract(FlightSuretyApp.abi as any, config.appAddress)
   );
   const [isOperational, setIsOperational] = useState<boolean>();
   const [airlines, setAirlines] = useState<Address[]>([]);
@@ -44,17 +41,19 @@ export const useFlightSuretyAppContract = () => {
       },
       payAirlineFunds: (args: { from: Address; value: string }) => {
         console.log("[sending payAirlineFunds()]");
-        return promisifyWeb3Call(() =>
-          contract.methods.payAirlineFunds().send(args)
-        );
+        return promisifyWeb3Call(async () => {
+          const tx = contract.methods.payAirlineFunds();
+          const gas = await tx.estimateGas(args);
+          return tx.send({ ...args, gas });
+        });
       },
       registerAirline: (args: { newAirline: Address; from: Address }) => {
         console.log("[sending registerAirline(…)]");
-        return promisifyWeb3Call(() =>
-          contract.methods
-            .registerAirline(args.newAirline)
-            .send({ from: args.from })
-        );
+        return promisifyWeb3Call(async () => {
+          const tx = contract.methods.registerAirline(args.newAirline);
+          const gas = await tx.estimateGas({ from: args.from });
+          return tx.send({ from: args.from, gas });
+        });
       },
       MIN_AIRLINE_FUNDING: (args?: { from?: Address }) => {
         console.log("[calling MIN_AIRLINE_FUNDING()]");
@@ -71,7 +70,7 @@ export const useFlightSuretyAppContract = () => {
         },
         cbWhenStatusReceived?: (statusCode: FlightStatusCode) => any
       ) => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
           try {
             console.log("[sending fetchFlightStatus(…)]");
             const filter: Record<string, string | number> = {
@@ -101,15 +100,15 @@ export const useFlightSuretyAppContract = () => {
               }
             );
 
-            // return promisifyWeb3Call(() =>
-            contract.methods
-              .fetchFlightStatus(
-                args.airline,
-                args.flightNumber,
-                args.timestamp
-              )
-              .send(args.from ? { from: args.from } : {});
-            // );
+            const tx = contract.methods.fetchFlightStatus(
+              args.airline,
+              args.flightNumber,
+              args.timestamp
+            );
+            const txArgs = args.from ? { from: args.from } : {};
+            const gas = await tx.estimateGastxArgs;
+            tx.send(args.from ? { ...txArgs, gas } : { gas });
+
             if (cbWhenStatusReceived) resolve(undefined);
           } catch (e) {
             reject(e);
@@ -123,11 +122,17 @@ export const useFlightSuretyAppContract = () => {
         value: string; // in Wei
       }) => {
         console.log("[sending purchaseInsurance(…)]");
-        return promisifyWeb3Call(() =>
-          contract.methods
-            .purchaseInsurance(args.flightNumber, args.airline)
-            .send({ from: args.from, value: args.value })
-        );
+        return promisifyWeb3Call(async () => {
+          const tx = contract.methods.purchaseInsurance(
+            args.flightNumber,
+            args.airline
+          );
+          const gas = await tx.estimateGas({
+            from: args.from,
+            value: args.value,
+          });
+          return tx.send({ from: args.from, value: args.value, gas });
+        });
       },
       queryCredit: (args: { from: Address }) => {
         console.log("[calling queryCredit()]");
@@ -149,9 +154,11 @@ export const useFlightSuretyAppContract = () => {
       },
       withdrawCredit: (args: { from: Address }) => {
         console.log("[calling withdrawCredit()]");
-        return promisifyWeb3Call(() =>
-          contract.methods.withdrawCredit().send(args)
-        );
+        return promisifyWeb3Call(async () => {
+          const tx = contract.methods.withdrawCredit();
+          const gas = await tx.estimateGas(args);
+          return tx.send({ ...args, gas });
+        });
       },
       getBalance: (account: Address) => {
         console.log("[calling web3.getBalance()]");

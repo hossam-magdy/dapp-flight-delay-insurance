@@ -348,7 +348,7 @@ contract FlightSuretyApp is
     // Register an oracle with the contract
     function registerOracle() external payable requireIsOperational {
         require(msg.value >= REGISTRATION_FEE, "Registration fee is required");
-        payable(address(flightSuretyData)).transfer(msg.value);
+        flightSuretyData.fund{value: msg.value}();
         uint8[3] memory indexes = _generateIndexes(msg.sender);
         oracles[msg.sender] = Oracle({isRegistered: true, indexes: indexes});
         emit OracleRegistered(msg.sender);

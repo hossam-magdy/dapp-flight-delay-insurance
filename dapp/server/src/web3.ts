@@ -19,9 +19,7 @@ const contracts = {
   flightSuretyApp: new web3.eth.Contract(
     // till https://github.com/microsoft/TypeScript/issues/32063
     FlightSuretyAppABI as any,
-    config.appAddress,
-    // TODO remove without failure
-    { gas: 220000 }
+    config.appAddress
   ),
 } as const;
 
