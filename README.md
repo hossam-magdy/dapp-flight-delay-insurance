@@ -26,11 +26,11 @@ Start local dev servers:
 
 - `yarn start` ... (starts `dapp/client/` and `dapp/server/`)
 
-To view dapp:
+To view dapp client:
 
 - `http://localhost:8000`
 
-To tun tests:
+To run the tests:
 
 - `truffle test`
 
@@ -93,8 +93,6 @@ Rubrics: https://review.udacity.com/#!/rubrics/3609/view
   - [x] Server will loop through all registered oracles, identify those oracles for which the OracleRequest event applies, and respond by calling into FlightSuretyApp contract with random status code of Unknown (0), On Time (10) or Late Airline (20), Late Weather (30), Late Technical (40), or Late Other (50)
 
 ```
-Truffle Develop started at http://127.0.0.1:8545/
-
 Accounts:
 (0) 0x6c0ebe2a2cdbea429fd3719f56fb57d7719396f7
 (1) 0xcedbf6b6f39e7ab84df5d7d881e08d8ed8918aa4
@@ -186,3 +184,14 @@ Private Keys:
 - [EIP specs: ERC20 (Token), ERC721 (Non-Fungible Token), …](https://eips.ethereum.org/erc)
 - [Spin-from/parent repo](https://github.com/hossam-magdy/web3/tree/9150752/L5.Project-FlightSurety)
 - [Project's Starter Code](https://github.com/udacity/FlightSurety/tree/28a78bc)
+
+More … from reviewer:
+- https://mycoralhealth.medium.com/advanced-blockchain-concepts-for-beginners-32887202afad
+- https://ethereum-magicians.org/t/dapplets-rethinking-dapp-architecture-for-better-adoption-and-security/2799
+- https://medium.com/@ChrisLundkvist/exploring-simpler-ethereum-multisig-contracts-b71020c19037
+- https://codeburst.io/deep-dive-into-ethereum-logs-a8d2047c7371
+- https://medium.com/3-min-blockchain/understanding-uint-overflows-and-underflows-solidity-ethereum-8603339259e6
+- https://medium.com/experiencebihar/test-driven-development-tdd-in-blockchain-using-truffle-1f34c8bd69b7
+- https://github.com/b-mueller/mythril/
+- https://provable.xyz/
+- https://medium.com/decentlabs/building-your-first-ethereum-oracle-1ab4cccf0b31
