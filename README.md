@@ -186,6 +186,7 @@ Private Keys:
 - [Project's Starter Code](https://github.com/udacity/FlightSurety/tree/28a78bc)
 
 More … from reviewer:
+
 - https://mycoralhealth.medium.com/advanced-blockchain-concepts-for-beginners-32887202afad
 - https://ethereum-magicians.org/t/dapplets-rethinking-dapp-architecture-for-better-adoption-and-security/2799
 - https://medium.com/@ChrisLundkvist/exploring-simpler-ethereum-multisig-contracts-b71020c19037

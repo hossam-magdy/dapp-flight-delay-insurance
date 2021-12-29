@@ -14,6 +14,7 @@
     "build": "concurrently -c black.bgYellow,white.bgBlue yarn:build:client yarn:build:server",
     "serve": "concurrently -c black.bgYellow,white.bgBlue yarn:serve:client yarn:serve:server",
     "link-compiled-contracts": "concurrently -c black.bgYellow,white.bgBlue yarn:link-compiled-contracts:client yarn:link-compiled-contracts:server",
+    "format": "prettier --write './*.{sol,js,md}'",
     "setup:client": "cd dapp/client && yarn install",
     "setup:server": "cd dapp/server && yarn install",
     "start:client": "cd dapp/client && yarn start",
